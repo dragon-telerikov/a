@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -24,6 +24,7 @@
         BUTTON_GROUP = "k-button-group",
         SPLIT_BUTTON = "k-split-button",
         SEPARATOR = "k-separator",
+        POPUP = "k-popup",
 
         RESIZABLE_TOOLBAR = "k-toolbar-resizable",
         STATE_ACTIVE = "k-state-active",
@@ -709,7 +710,7 @@
             },
 
             _toggleOverflowAnchor: function() {
-                if (this.popup.element.children(":not(." + OVERFLOW_HIDDEN + ")").length > 0) {
+                if (this.popup.element.children(":not(." + OVERFLOW_HIDDEN + ", ." + POPUP + ")").length > 0) {
                     this.overflowAnchor.css({
                         visibility: "visible",
                         width: ""
@@ -740,7 +741,7 @@
                     target = $(e.target).closest("." + OVERFLOW_BUTTON, that.popup.container);
                 }
 
-                isDisabled = target.hasClass(STATE_DISABLED);
+                isDisabled = target.hasClass(OVERFLOW_BUTTON) ? target.parent("li").hasClass(STATE_DISABLED) : target.hasClass(STATE_DISABLED);
 
                 if (isDisabled) {
                     return;
@@ -788,6 +789,10 @@
                     isDefaultPrevented;
 
                 e.preventDefault();
+
+                if (splitButton.hasClass(STATE_DISABLED)) {
+                    return;
+                }
 
                 if (popup.element.is(":visible")) {
                     isDefaultPrevented = this.trigger(CLOSE, { target: splitButton });

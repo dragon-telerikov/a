@@ -577,6 +577,24 @@ intellisense.annotate(instance, {
         /// <returns type="kendo.data.Model">the data item which is inserted.</returns>
         /// </signature>
     },
+    online: function(value) {
+        /// <signature>
+        /// <summary>
+        /// Gets or sets the online state of the data source.
+        /// </summary>
+        /// <param name="value" type="Boolean" >The online state - true for online, false for offline.</param>
+        /// <returns type="Boolean">the current online state - true if online; otherwise false.</returns>
+        /// </signature>
+    },
+    offlineData: function(data) {
+        /// <signature>
+        /// <summary>
+        /// Gets or sets the offline state of the data source.
+        /// </summary>
+        /// <param name="data" type="Array" >The array of data items that replace the current offline state of the data source.</param>
+        /// <returns type="Array">array of JavaScript objects that represent the data items. Changed data items have a __state__ field attached. That field indicates the type of change: "create", "update" or "destroy". Unmodified data items don't have a __state__ field.</returns>
+        /// </signature>
+    },
     page: function(page) {
         /// <signature>
         /// <summary>
@@ -3708,7 +3726,7 @@ intellisense.annotate(instance, {
         /// <signature>
         /// <summary>
         /// Gets the end angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <returns type="Number">The end angle of the arc.</returns>
         /// </signature>
@@ -3733,7 +3751,7 @@ intellisense.annotate(instance, {
         /// <signature>
         /// <summary>
         /// Gets the start angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <returns type="Number">The start angle of the arc.</returns>
         /// </signature>
@@ -3743,7 +3761,7 @@ intellisense.annotate(instance, {
         /// <summary>
         /// Gets the location of a point on the arc's circumference at a given angle.
         /// </summary>
-        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <returns type="kendo.dataviz.geometry.Point">The point on the arc's circumference.</returns>
         /// </signature>
     },
@@ -3769,7 +3787,7 @@ intellisense.annotate(instance, {
         /// <signature>
         /// <summary>
         /// Sets the end angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <param name="value" type="Number" >The new arc end angle.</param>
         /// <returns type="kendo.dataviz.geometry.Arc">The current arc instance.</returns>
@@ -3797,7 +3815,7 @@ intellisense.annotate(instance, {
         /// <signature>
         /// <summary>
         /// Sets the start angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <param name="value" type="Number" >The new arc atart angle.</param>
         /// <returns type="kendo.dataviz.geometry.Arc">The current arc instance.</returns>
@@ -3898,7 +3916,7 @@ intellisense.annotate(instance, {
         /// <summary>
         /// Gets the location of a point on the circle's circumference at a given angle.
         /// </summary>
-        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <returns type="kendo.dataviz.geometry.Point">The point on the circle's circumference.</returns>
         /// </signature>
     },
@@ -4126,7 +4144,7 @@ intellisense.annotate(instance, {
         /// <summary>
         /// Rotates the point around the given center.
         /// </summary>
-        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <param name="center" type="Object" >The rotation center. Can be a Point instance or an [x, y] array.</param>
         /// <returns type="kendo.dataviz.geometry.Point">The current Point instance.</returns>
         /// </signature>
@@ -4588,7 +4606,7 @@ intellisense.annotate(instance, {
         /// <summary>
         /// Sets rotation with the specified parameters.
         /// </summary>
-        /// <param name="angle" type="Number" >The angle of rotation in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >The angle of rotation in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <param name="x" type="Number" >The center of rotation on the X axis.</param>
         /// <param name="y" type="Number" >The center of rotation on the Y axis.</param>
         /// <returns type="kendo.dataviz.geometry.Transformation">The current transformation instance.</returns>
@@ -4612,6 +4630,115 @@ intellisense.annotate(instance, {
         /// <param name="x" type="Number" >The distance to translate along the X axis.</param>
         /// <param name="y" type="Number" >The distance to translate along the Y axis.</param>
         /// <returns type="kendo.dataviz.geometry.Transformation">The current transformation instance.</returns>
+        /// </signature>
+    },
+
+    bind: function(event, callback) {
+        /// <signature>
+        /// <summary>
+        /// Binds to a widget event.
+        /// </summary>
+        /// <param name="event" type="String">The event name</param>
+        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
+        /// </signature>
+    },
+
+    unbind: function(event, callback) {
+        /// <signature>
+        /// <summary>
+        /// Unbinds a callback from a widget event.
+        /// </summary>
+        /// <param name="event" type="String">The event name</param>
+        /// <param name="callback" type="Function">The callback to be removed.</param>
+        /// </signature>
+    }
+
+});
+
+return instance;
+
+};
+
+intellisense.redirectDefinition(wrapper, original);
+
+return wrapper;
+
+})();
+
+
+intellisense.annotate(kendo.dataviz.map, {
+    Location: function() {
+        /// <signature>
+        /// <summary>Constructor of kendo.dataviz.map.Location</summary>
+        /// </signature>
+    }
+});
+
+kendo.dataviz.map.Location = (function() {
+var original = kendo.dataviz.map.Location;
+var wrapper = function() {
+var instance = new original();
+intellisense.annotate(instance, {
+    clone: function() {
+        /// <signature>
+        /// <summary>
+        /// Creates a new instance with the same coordinates.
+        /// </summary>
+        /// <returns type="kendo.dataviz.map.Location">The new Location instance.</returns>
+        /// </signature>
+    },
+    destination: function(destination) {
+        /// <signature>
+        /// <summary>
+        /// Calculates the great-circle distance
+/// to the given destination in meters.
+        /// </summary>
+        /// <param name="destination" type="kendo.dataviz.map.Location" >The destination location.</param>
+        /// <returns type="Number">The distance to the specified location in meters.</returns>
+        /// </signature>
+    },
+    distanceTo: function(distance,bearing) {
+        /// <signature>
+        /// <summary>
+        /// Finds a destination at the given distance and bearing from this location.
+        /// </summary>
+        /// <param name="distance" type="Number" >The distance to the destination in meters.</param>
+        /// <param name="bearing" type="Number" >The initial bearing to the destination in decimal degrees.</param>
+        /// <returns type="kendo.dataviz.map.Location">The destination at the given distance and bearing.</returns>
+        /// </signature>
+    },
+    equals: function(location) {
+        /// <signature>
+        /// <summary>
+        /// Compares this location with another instance.
+        /// </summary>
+        /// <param name="location" type="kendo.dataviz.map.Location" >The location to compare with.</param>
+        /// <returns type="Boolean">true if the location coordinates match; false otherwise.</returns>
+        /// </signature>
+    },
+    round: function(digits) {
+        /// <signature>
+        /// <summary>
+        /// Rounds the location coordinates to the specified number of fractional digits.
+        /// </summary>
+        /// <param name="digits" type="Number" >Number of fractional digits.</param>
+        /// <returns type="kendo.dataviz.map.Location">The current Location instance.</returns>
+        /// </signature>
+    },
+    toArray: function() {
+        /// <signature>
+        /// <summary>
+        /// Returns the location coordinates as an [lat, lng] array.
+        /// </summary>
+        /// <returns type="Array">An array representation of the location, e.g. [39, -179]</returns>
+        /// </signature>
+    },
+    wrap: function() {
+        /// <signature>
+        /// <summary>
+        /// Wraps the latitude and longitude to fit into the [0, 90] and [0, 180] range.
+        /// </summary>
+        /// <returns type="kendo.dataviz.map.Location">The current Location instance.</returns>
         /// </signature>
     },
 
@@ -6616,587 +6743,6 @@ intellisense.annotate(jQuery.fn, {
         /// &#10;
         /// &#10;colors — Array 
         /// &#10;The default colors for the treemap tiles. When all colors are used, new colors are pulled from the start again.
-        /// &#10;
-        /// </summary>
-        /// <param name="options" type="Object">
-        /// The widget configuration options
-        /// </param>
-        /// </signature>
-    }
-});
-
-intellisense.annotate(kendo.mobile.ui, {
-    Widget: function() {
-        /// <signature>
-        /// <summary>Constructor of kendo.mobile.ui.Widget</summary>
-        /// </signature>
-    }
-});
-
-kendo.mobile.ui.Widget = (function() {
-var original = kendo.mobile.ui.Widget;
-var wrapper = function() {
-var instance = new original();
-intellisense.annotate(instance, {
-    view: function() {
-        /// <signature>
-        /// <summary>
-        /// Returns the kendo.mobile.ui.View which contains the widget. If the widget is contained in a splitview, modalview, or drawer, the respective widget instance is returned.
-        /// </summary>
-        /// </signature>
-    },
-
-    bind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-        /// </signature>
-    },
-
-    unbind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-        /// </signature>
-    }
-
-});
-
-return instance;
-
-};
-
-intellisense.redirectDefinition(wrapper, original);
-
-return wrapper;
-
-})();
-
-
-jQuery.fn.kendoMobileWidget = function() {
-    this.data("kendoMobileWidget", new kendo.mobile.ui.Widget());
-
-    return this;
-};
-
-intellisense.annotate(jQuery.fn, {
-    getKendoMobileWidget: function() {
-        /// <signature>
-        /// <summary>
-        /// Returns a reference to the kendo.mobile.ui.Widget widget, instantiated on the selector.
-        /// </summary>
-        /// <returns type="kendo.mobile.ui.Widget">The kendo.mobile.ui.Widget instance (if present).</returns>
-        /// </signature>
-    },
-    kendoMobileWidget: function(options) {
-        /// <signature>
-        /// <summary>
-        /// Instantiates a kendo.mobile.ui.Widget widget based the DOM elements that match the selector.
-        /// &#10;Accepts an object with the following configuration options:
-        /// &#10;
-        /// </summary>
-        /// <param name="options" type="Object">
-        /// The widget configuration options
-        /// </param>
-        /// </signature>
-    }
-});
-
-intellisense.annotate(kendo.ui, {
-    Draggable: function() {
-        /// <signature>
-        /// <summary>Constructor of kendo.ui.Draggable</summary>
-        /// </signature>
-    }
-});
-
-kendo.ui.Draggable = (function() {
-var original = kendo.ui.Draggable;
-var wrapper = function() {
-var instance = new original();
-intellisense.annotate(instance, {
-    cancelHold: function() {
-        /// <signature>
-        /// <summary>
-        /// Has effect only when holdToDrag is set to true. Cancels the activated state of the widget, caused by pressing and holding.
-        /// </summary>
-        /// </signature>
-    },
-
-    bind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-        /// </signature>
-    },
-
-    unbind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-        /// </signature>
-    }
-
-});
-
-return instance;
-
-};
-
-intellisense.redirectDefinition(wrapper, original);
-
-return wrapper;
-
-})();
-
-
-jQuery.fn.kendoDraggable = function() {
-    this.data("kendoDraggable", new kendo.ui.Draggable());
-
-    return this;
-};
-
-intellisense.annotate(jQuery.fn, {
-    getKendoDraggable: function() {
-        /// <signature>
-        /// <summary>
-        /// Returns a reference to the kendo.ui.Draggable widget, instantiated on the selector.
-        /// </summary>
-        /// <returns type="kendo.ui.Draggable">The kendo.ui.Draggable instance (if present).</returns>
-        /// </signature>
-    },
-    kendoDraggable: function(options) {
-        /// <signature>
-        /// <summary>
-        /// Instantiates a kendo.ui.Draggable widget based the DOM elements that match the selector.
-        /// &#10;Accepts an object with the following configuration options:
-        /// &#10;
-        /// &#10;axis — String (default: null)
-        /// &#10;Constrains the hint movement to either the horizontal (x) or vertical (y) axis. Can be set to either "x" or "y".
-        /// &#10;
-        /// &#10;container — jQuery 
-        /// &#10;If set, the hint movement is constrained to the container boundaries.
-        /// &#10;
-        /// &#10;cursorOffset — Object (default: null)
-        /// &#10;If set, specifies the offset of the hint relative to the mouse cursor/finger.
-/// &#10;By default, the hint is initially positioned on top of the draggable source offset. The option accepts an object with two keys: top and left.
-        /// &#10;
-        /// &#10;distance — Number (default: 5)
-        /// &#10;The required distance that the mouse should travel in order to initiate a drag.
-        /// &#10;
-        /// &#10;group — String (default: "default")
-        /// &#10;Used to group sets of draggable and drop targets. A draggable with the same group value as a drop target will be accepted by the drop target.
-        /// &#10;
-        /// &#10;hint — Function|jQuery 
-        /// &#10;Provides a way for customization of the drag indicator. If a function is supplied, it receives one argument - the draggable element's jQuery object.
-        /// &#10;
-        /// &#10;holdToDrag — Boolean (default: false)
-        /// &#10;Suitable for touch oriented user interface, in order to avoid collision with the touch scrolling gesture. When set to true, the widget will be activated after the user taps and holds the finger on the element for a short amount of time.The draggable will also be activated by pressing, holding and lifting the finger without any movement. Dragging it afterwards will initiate the drag immediately. The activated mode can be canceled by calling cancelHold.
-        /// &#10;
-        /// </summary>
-        /// <param name="options" type="Object">
-        /// The widget configuration options
-        /// </param>
-        /// </signature>
-    }
-});
-
-intellisense.annotate(kendo.ui, {
-    DropTarget: function() {
-        /// <signature>
-        /// <summary>Constructor of kendo.ui.DropTarget</summary>
-        /// </signature>
-    }
-});
-
-kendo.ui.DropTarget = (function() {
-var original = kendo.ui.DropTarget;
-var wrapper = function() {
-var instance = new original();
-intellisense.annotate(instance, {
-    destroyGroup: function() {
-        /// <signature>
-        /// <summary>
-        /// Destroys all DropTarget instances from the group with the given name.
-        /// </summary>
-        /// </signature>
-    },
-
-    bind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-        /// </signature>
-    },
-
-    unbind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-        /// </signature>
-    }
-
-});
-
-return instance;
-
-};
-
-intellisense.redirectDefinition(wrapper, original);
-
-return wrapper;
-
-})();
-
-
-jQuery.fn.kendoDropTarget = function() {
-    this.data("kendoDropTarget", new kendo.ui.DropTarget());
-
-    return this;
-};
-
-intellisense.annotate(jQuery.fn, {
-    getKendoDropTarget: function() {
-        /// <signature>
-        /// <summary>
-        /// Returns a reference to the kendo.ui.DropTarget widget, instantiated on the selector.
-        /// </summary>
-        /// <returns type="kendo.ui.DropTarget">The kendo.ui.DropTarget instance (if present).</returns>
-        /// </signature>
-    },
-    kendoDropTarget: function(options) {
-        /// <signature>
-        /// <summary>
-        /// Instantiates a kendo.ui.DropTarget widget based the DOM elements that match the selector.
-        /// &#10;Accepts an object with the following configuration options:
-        /// &#10;
-        /// &#10;group — String (default: "default")
-        /// &#10;Used to group sets of draggable and drop targets. A draggable with the same group value as a drop target will be accepted by the drop target.
-        /// &#10;
-        /// </summary>
-        /// <param name="options" type="Object">
-        /// The widget configuration options
-        /// </param>
-        /// </signature>
-    }
-});
-
-intellisense.annotate(kendo.ui, {
-    DropTargetArea: function() {
-        /// <signature>
-        /// <summary>Constructor of kendo.ui.DropTargetArea</summary>
-        /// </signature>
-    }
-});
-
-kendo.ui.DropTargetArea = (function() {
-var original = kendo.ui.DropTargetArea;
-var wrapper = function() {
-var instance = new original();
-intellisense.annotate(instance, {
-
-    bind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-        /// </signature>
-    },
-
-    unbind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-        /// </signature>
-    }
-
-});
-
-return instance;
-
-};
-
-intellisense.redirectDefinition(wrapper, original);
-
-return wrapper;
-
-})();
-
-
-jQuery.fn.kendoDropTargetArea = function() {
-    this.data("kendoDropTargetArea", new kendo.ui.DropTargetArea());
-
-    return this;
-};
-
-intellisense.annotate(jQuery.fn, {
-    getKendoDropTargetArea: function() {
-        /// <signature>
-        /// <summary>
-        /// Returns a reference to the kendo.ui.DropTargetArea widget, instantiated on the selector.
-        /// </summary>
-        /// <returns type="kendo.ui.DropTargetArea">The kendo.ui.DropTargetArea instance (if present).</returns>
-        /// </signature>
-    },
-    kendoDropTargetArea: function(options) {
-        /// <signature>
-        /// <summary>
-        /// Instantiates a kendo.ui.DropTargetArea widget based the DOM elements that match the selector.
-        /// &#10;Accepts an object with the following configuration options:
-        /// &#10;
-        /// &#10;group — String (default: "default")
-        /// &#10;Used to group sets of draggable and drop targets. A draggable with the same group value as a drop target will be accepted by the drop target.
-        /// &#10;
-        /// &#10;filter — String (default: null)
-        /// &#10;Selector to filter the drop targets in the area. Every matched element acts as a drop target and fires events on the DropTargetArea. Specifying the filter is mandatory.
-        /// &#10;
-        /// </summary>
-        /// <param name="options" type="Object">
-        /// The widget configuration options
-        /// </param>
-        /// </signature>
-    }
-});
-
-intellisense.annotate(kendo.ui, {
-    Validator: function() {
-        /// <signature>
-        /// <summary>Constructor of kendo.ui.Validator</summary>
-        /// </signature>
-    }
-});
-
-kendo.ui.Validator = (function() {
-var original = kendo.ui.Validator;
-var wrapper = function() {
-var instance = new original();
-intellisense.annotate(instance, {
-    errors: function() {
-        /// <signature>
-        /// <summary>
-        /// Get the error messages if any.
-        /// </summary>
-        /// <returns type="Array">Messages for the failed validation rules.</returns>
-        /// </signature>
-    },
-    hideMessages: function() {
-        /// <signature>
-        /// <summary>
-        /// Hides the validation messages.
-        /// </summary>
-        /// </signature>
-    },
-    validate: function() {
-        /// <signature>
-        /// <summary>
-        /// Validates the input element(s) against the declared validation rules.
-        /// </summary>
-        /// <returns type="Boolean">true if all validation rules passed successfully.Note that if a HTML form element is set as validation container, the form submits will be automatically prevented if validation fails.</returns>
-        /// </signature>
-    },
-    validateInput: function(input) {
-        /// <signature>
-        /// <summary>
-        /// Validates the input element against the declared validation rules.
-        /// </summary>
-        /// <param name="input" type="Object" >Input element to be validated.</param>
-        /// <returns type="Boolean">true if all validation rules passed successfully.</returns>
-        /// </signature>
-    },
-
-    bind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-        /// </signature>
-    },
-
-    unbind: function(event, callback) {
-        /// <signature>
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-        /// </signature>
-    }
-
-});
-
-return instance;
-
-};
-
-intellisense.redirectDefinition(wrapper, original);
-
-return wrapper;
-
-})();
-
-
-jQuery.fn.kendoValidator = function() {
-    this.data("kendoValidator", new kendo.ui.Validator());
-
-    return this;
-};
-
-intellisense.annotate(jQuery.fn, {
-    getKendoValidator: function() {
-        /// <signature>
-        /// <summary>
-        /// Returns a reference to the kendo.ui.Validator widget, instantiated on the selector.
-        /// </summary>
-        /// <returns type="kendo.ui.Validator">The kendo.ui.Validator instance (if present).</returns>
-        /// </signature>
-    },
-    kendoValidator: function(options) {
-        /// <signature>
-        /// <summary>
-        /// Instantiates a kendo.ui.Validator widget based the DOM elements that match the selector.
-        /// &#10;Accepts an object with the following configuration options:
-        /// &#10;
-        /// &#10;errorTemplate — String 
-        /// &#10;The template which renders the validation message.
-        /// &#10;
-        /// &#10;messages — Object 
-        /// &#10;Set of messages (either strings or functions) which will be shown when given validation rule fails.
-/// &#10;By setting already existing key the appropriate built-in message will be overridden.
-        /// &#10;
-        /// &#10;rules — Object 
-        /// &#10;Set of custom validation rules. Those rules will extend the built-in ones.
-        /// &#10;
-        /// &#10;validateOnBlur — Boolean 
-        /// &#10;Determines if validation will be triggered when element loses focus. Default value is true.
-        /// &#10;
-        /// </summary>
-        /// <param name="options" type="Object">
-        /// The widget configuration options
-        /// </param>
-        /// </signature>
-    }
-});
-
-intellisense.annotate(kendo.ui, {
-    Widget: function() {
-        /// <signature>
-        /// <summary>Constructor of kendo.ui.Widget</summary>
-        /// </signature>
-    }
-});
-
-kendo.ui.Widget = (function() {
-var original = kendo.ui.Widget;
-var wrapper = function() {
-var instance = new original();
-intellisense.annotate(instance, {
-    bind: function() {
-        /// <signature>
-        /// <summary>
-        /// Attaches a handler to an event. Examples and more info can be found in the bind section of the kendo.Observable API reference.
-        /// </summary>
-        /// </signature>
-    },
-    destroy: function() {
-        /// <signature>
-        /// <summary>
-        /// Prepares the widget for safe removal from the DOM. Detaches all event handlers and removes jQuery.data attributes to avoid memory leaks. Calls destroy method of any child Kendo widgets.
-        /// </summary>
-        /// </signature>
-    },
-    one: function() {
-        /// <signature>
-        /// <summary>
-        /// Attaches a handler to an event. The handler is executed only once. Examples and more info can be found in the one section of the
-/// kendo.Observable API reference.
-        /// </summary>
-        /// </signature>
-    },
-    setOptions: function(newOptions) {
-        /// <signature>
-        /// <summary>
-        /// Allows changing the widget configuration after initialization. Depending on the widget, some properties may not be changed, e.g. ones that influence the widget's HTML output (such as Grid scrollability or columns).
-        /// </summary>
-        /// <param name="newOptions" type="Object" >The options to be changed or added.</param>
-        /// </signature>
-    },
-    trigger: function() {
-        /// <signature>
-        /// <summary>
-        /// Executes all handlers attached to the given event. More info can be found in the trigger section of the
-/// kendo.Observable API reference.
-        /// </summary>
-        /// </signature>
-    },
-    unbind: function() {
-        /// <signature>
-        /// <summary>
-        /// Remove a previously attached event handler. More info can be found in the unbind section of the
-/// kendo.Observable API reference.
-        /// </summary>
-        /// </signature>
-    }
-
-
-
-});
-
-return instance;
-
-};
-
-intellisense.redirectDefinition(wrapper, original);
-
-return wrapper;
-
-})();
-
-
-jQuery.fn.kendoWidget = function() {
-    this.data("kendoWidget", new kendo.ui.Widget());
-
-    return this;
-};
-
-intellisense.annotate(jQuery.fn, {
-    getKendoWidget: function() {
-        /// <signature>
-        /// <summary>
-        /// Returns a reference to the kendo.ui.Widget widget, instantiated on the selector.
-        /// </summary>
-        /// <returns type="kendo.ui.Widget">The kendo.ui.Widget instance (if present).</returns>
-        /// </signature>
-    },
-    kendoWidget: function(options) {
-        /// <signature>
-        /// <summary>
-        /// Instantiates a kendo.ui.Widget widget based the DOM elements that match the selector.
-        /// &#10;Accepts an object with the following configuration options:
         /// &#10;
         /// </summary>
         /// <param name="options" type="Object">

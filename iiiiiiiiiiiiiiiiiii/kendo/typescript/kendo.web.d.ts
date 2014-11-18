@@ -1313,7 +1313,7 @@ declare module kendo.ui {
         options: AutoCompleteOptions;
         dataSource: kendo.data.DataSource;
         close(): void;
-        dataItem(index?: number): any;
+        dataItem(index: number): any;
         destroy(): void;
         enable(enable: boolean): void;
         focus(): void;
@@ -2306,6 +2306,7 @@ declare module kendo.ui {
         dialogInsert?: string;
         dialogCancel?: string;
         createTable?: string;
+        createTableHint?: string;
         addColumnLeft?: string;
         addColumnRight?: string;
         addRowAbove?: string;
@@ -2316,6 +2317,7 @@ declare module kendo.ui {
 
     interface EditorSerialization {
         entities?: boolean;
+        scripts?: boolean;
     }
 
     interface EditorToolItem {
@@ -4004,6 +4006,8 @@ declare module kendo.ui {
 
     interface SchedulerMessages {
         allDay?: string;
+        ariaEventLabel?: string;
+        ariaSlotLabel?: string;
         cancel?: string;
         date?: string;
         deleteWindowTitle?: string;
