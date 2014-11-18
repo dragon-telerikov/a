@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -1427,6 +1427,9 @@ div.k-window-content,
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+.form-control.k-widget {
+  padding: 0;
+}
 a.k-button:hover {
   text-decoration: none;
 }
@@ -1550,6 +1553,9 @@ div.k-window-iframecontent {
 /* Compensate for content padding in IE7 */
 .k-ie7 .k-window {
   padding-bottom: 1.16em;
+}
+.k-ie7 .k-window-titleless {
+  padding-bottom: 0;
 }
 .k-window-titlebar .k-window-actions {
   position: absolute;
@@ -2054,7 +2060,7 @@ ul.k-menu-vertical .k-separator,
   text-overflow: ellipsis;
   text-align: left;
 }
-.k-filter-row > th {
+.k-grid-header .k-filter-row > th {
   border-top-width: 1px;
 }
 .k-filter-row .k-dropdown-operator {
@@ -3046,6 +3052,17 @@ html .k-grid-edit-row .k-tooltip {
 .k-dependency-hint {
   z-index: 4;
 }
+/* Gantt Edit form */
+.k-gantt-edit-form > .k-edit-form-container {
+  width: 430px;
+}
+.k-gantt-edit-form > .k-edit-form-container .k-textbox,
+.k-gantt-edit-form > .k-edit-form-container .k-numerictextbox {
+  width: 15em;
+}
+.k-gantt-edit-form .k-edit-buttons .k-gantt-delete {
+  float: left;
+}
 /* Gantt Chart end */
 /* Pivot start */
 .k-pivot-toolbar {
@@ -3069,7 +3086,8 @@ html .k-grid-edit-row .k-tooltip {
   right: 2px;
   top: 3px;
 }
-.k-pivot .k-grid {
+/*IE7 requires the following style to be applied to cells directly*/
+.k-pivot .k-grid td {
   white-space: nowrap;
 }
 .k-pivot-layout {
@@ -3621,6 +3639,12 @@ span.k-datetimepicker .k-select + .k-select {
   height: 1.94em;
   padding-bottom: 0.4em;
 }
+/* above style breaks NumericTextBox layout due display:block style applied to the input */
+.km.root .k-combobox .k-dropdown-wrap:before,
+.km.root .k-picker-wrap:before,
+.km.root .k-numeric-wrap:before {
+  content: none;
+}
 .k-combobox .k-input,
 .k-picker-wrap .k-input,
 .k-numeric-wrap .k-input {
@@ -4098,9 +4122,12 @@ table.k-editor {
   cursor: default;
 }
 .k-editor-toolbar li {
+  display: inline-block;
+  vertical-align: middle;
+}
+.k-ie7 .k-editor-toolbar li {
   display: inline;
   /* mandatory for IE7. Floats and the inline-block hack break it */
-  vertical-align: middle;
 }
 .k-webkit .k-editor-toolbar,
 .k-ff .k-editor-toolbar,
@@ -5706,6 +5733,9 @@ div.k-scheduler-marquee:after {
 div[name="recurrenceRule"] > .k-dropdown {
   width: 9em;
 }
+.k-scheduler-edit-form .k-edit-buttons .k-scheduler-delete {
+  float: left;
+}
 .k-popup-message {
   margin: 0;
   padding: 1em 0 2em;
@@ -6261,6 +6291,9 @@ html .k-upload-empty {
 .k-dropzone .k-upload-status {
   line-height: 2.4;
 }
+.k-upload-pct {
+  line-height: 20px;
+}
 .k-ie8 .k-upload-status-total {
   line-height: 29px;
 }
@@ -6590,6 +6623,9 @@ html .k-upload-empty {
 .k-ie7 .k-treeview .k-item,
 .k-ie7 .k-treeview .k-group {
   zoom: 1;
+}
+.k-ie7 .k-edit-field > .k-textbox {
+  text-indent: 0;
 }
 /* common mobile css */
 .km-root,

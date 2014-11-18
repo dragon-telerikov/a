@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -958,6 +958,17 @@
 
         destroy: function() {
             Widget.fn.destroy.call(this);
+
+            if (this.dataSource) {
+                this.dataSource.unbind("change", this._refreshHandler);
+                this.dataSource.unbind("progress", this._progressHandler);
+                this.dataSource.unbind("error", this._errorHandler);
+            }
+
+            if (this.dependencies) {
+                this.dependencies.unbind("change", this._dependencyRefreshHandler);
+                this.dependencies.unbind("error", this._dependencyErrorHandler);
+            }
 
             if (this.timeline) {
                 this.timeline.unbind();

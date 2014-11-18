@@ -1,0 +1,94 @@
+    <div data-role="drawer" id="foo" data-position="right">
+    <div data-role="header">
+        <div data-role="navbar" style="background-color: #00aff4;">
+            <span data-role="view-title" style="color: #FFFFFF !important;" class="opensans-regular">Menu</span>
+        </div>
+    </div>
+
+        <ul data-role="listview" style="background-color: #CCCCCC !important; height: 100%;">
+            <li>Home</li>
+            <li>My Profile</li>
+            <li>SquareBank</li>
+            <li>Help</li>
+        </ul>
+        
+</div>
+    
+    <div id="view-other-profile-view" data-role="view" data-before-show="update_other_profile_img_model" data-model="other_profile_img_model">
+        <div id="header-area" data-role="header">
+            <div data-role="navbar">
+                <a href="#foo" data-rel="drawer" data-align="right" data-role="button"><img src="images/icon-menu-blue.svg" width="20" height="20"></a> 
+                <span data-role="view-title" class="opensans-bold" style="font-size: 21px; color: #00aff4;" data-bind="text:personname"></span>
+                <a data-role="button" data-align="left" data-click="goBack" style="font-size: 8px; background-color: #00aff4; color: #FFFFFF;" class="opensans-regular">Back</a>
+            </div>
+        </div>    
+        <div id="content-area" data-role="content" style="background-color: #D1D1D1; width: 100%; height: 100%; position: relative;">
+            <div style="display: inline;">
+                <div style="background-color: #FFFFFF;">
+                    <table style="width: 90vw; position: relative; margin-left: auto; margin-right: auto;">
+                        <tr>
+                            <td>
+                                <img data-bind="attr: { src: purl }" style="width: 45vw; height: 45vw;">
+                            </td>
+                            <td>
+                                <span class="opensans-regular" style="font-size: 10px; color: #00aff4; float: left;">88 Friends</span>
+                                <span class="opensans-regular" style="font-size: 10px; color: #00aff4; float: right;">23 Squares</span>
+                                <br>
+                                <img src="images/small_focial_buttons.png" style="width: 45vw;">
+                                <br>
+                                <a data-role="button" style="background-color: #00aff4; color: white; width: 45vw; font-size: 13px;" class="opensans-semibold">Add Freind</a>
+                                <br>
+                                <a data-role="button" style="background-color: #00aff4; color: white; width: 45vw; font-size: 13px;" class="opensans-semibold">Block</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            <div style="background-color# D1D1D1; border-top: 1px solid #a3a3a3;">
+                <p style="color: #00000; font-size: 8px;" class="opensans-regular">
+                    RECENT SQUARES
+                </p>
+                
+                <div align="center">
+                
+                    <table class="square-table" style="position: relative; top: 10px;">
+                            <tr class="square-row">
+                                <td class="square-cell">
+                                    <div class="square-cell-content-wrapper">
+                                        <img data-bind="attr: { src: purl }" style="width: 100%; height: 100%;">
+                                        </div>
+                                </td>
+                                <td class="square-cell">
+                                    <div align="center" style="vertical-align: middle;">
+                                        <span class="opensans-regular" style="font-size: 15px;">Sharing my favorite playlist!</span>
+                                        <br>
+                                        <span class="opensans-light" style="font-size: 6px;"><img src="images/speech_bubble.png" height="10" style="vertical-align: middle; padding-right: 3px;">Add to conversation</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="square-row">
+                                <td class="square-cell">
+                                                                        <div class="square-cell-content-wrapper">
+                                    <img src="images/soundcloud_square_demo.png" style="width: 100%; height: 100%;">
+                                        </div>
+                                </td>
+                                <td class="square-cell">
+                                    <div align="center">
+                                        <img src="images/squares_text.png" style="width: 40vw; position: relative; top: 5px; left: 3px;">
+                                    <br>
+                                        <span class="coolvetica-regular" style="text-align:center; font-size: 55px; color: #0089cb;">412</span>
+                                    <br>
+                                    <a data-role="button" class="opensans-bold" style="background-color: #ffa264; font-size: 16px; color: #FFFFFF; display: block; position: relative; width: 95%; margin: 0; border-bottom: 1px solid #B27247;"><img src="images/resquare_icon.png" height="25" style="vertical-align:middle; padding-right: 5px;"><span style="">ReSquare</span></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    
+                </div>
+                
+             </div>
+            </div>
+        </div>
+        <div id="footer-area" data-role="footer" style="width: 100%;" align="center">
+            <a href="#new_square.html" data-role="button" class="opensans-bold" style="background-color: #ffa264; font-size: 21px; color: #FFFFFF; display: block; position: relative; width: 100%; margin: 0; border-bottom: 1px solid #B27247;"><img src="images/new_square_icon.png" height="40" style="vertical-align:middle; padding-right: 5px;"><span style="">New Square</span></a>
+        </div>
+    </div>

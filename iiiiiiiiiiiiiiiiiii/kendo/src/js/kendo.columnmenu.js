@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -220,7 +220,7 @@
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             }
 
-            if (that.options.columns && that.owner) {
+            if (that.options.columns && that.owner && that._updateColumnsMenuHandler) {
                 that.owner.unbind("columnShow", that._updateColumnsMenuHandler);
                 that.owner.unbind("columnHide", that._updateColumnsMenuHandler);
             }
@@ -357,6 +357,7 @@
         _sortDataSource: function(item, dir) {
             var that = this,
                 sortable = that.options.sortable,
+                compare = sortable.compare === null ? undefined : sortable.compare,
                 dataSource = that.dataSource,
                 idx,
                 length,
@@ -370,7 +371,7 @@
             }
 
             if (sortable === true || sortable.mode === "single") {
-                sort = [ { field: that.field, dir: dir } ];
+                sort = [ { field: that.field, dir: dir, compare: compare} ];
             } else {
                 for (idx = 0, length = sort.length; idx < length; idx++) {
                     if (sort[idx].field === that.field) {
@@ -378,7 +379,7 @@
                         break;
                     }
                 }
-                sort.push({ field: that.field, dir: dir });
+                sort.push({ field: that.field, dir: dir, compare: compare });
             }
 
             dataSource.sort(sort);

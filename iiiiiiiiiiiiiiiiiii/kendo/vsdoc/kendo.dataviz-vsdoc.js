@@ -613,6 +613,26 @@ kendo.data.DataSource.prototype = {
     },
 
 
+    online: function(value) {
+        /// <summary>
+        /// Gets or sets the online state of the data source.
+        /// </summary>
+        /// <param name="value" type="Boolean" >The online state - true for online, false for offline.</param>
+        /// <returns type="Boolean">the current online state - true if online; otherwise false.</returns>
+
+    },
+
+
+    offlineData: function(data) {
+        /// <summary>
+        /// Gets or sets the offline state of the data source.
+        /// </summary>
+        /// <param name="data" type="Array" >The array of data items that replace the current offline state of the data source.</param>
+        /// <returns type="Array">array of JavaScript objects that represent the data items. Changed data items have a __state__ field attached. That field indicates the type of change: "create", "update" or "destroy". Unmodified data items don't have a __state__ field.</returns>
+
+    },
+
+
     page: function(page) {
         /// <summary>
         /// Gets or sets the current page.
@@ -781,6 +801,9 @@ $.fn.kendoDataSource = function(options) {
     /// &#10;
     /// &#10;group — Array|Object 
     /// &#10;The grouping configuration of the data source. If set the data items will be grouped when the data source is populated. By default grouping is not applied.
+    /// &#10;
+    /// &#10;offlineStorage — String|Object 
+    /// &#10;The offline storage key or custom offline storage implementation.
     /// &#10;
     /// &#10;page — Number 
     /// &#10;The page of data which the data source will return when the view method is invoked or request from the remote service.
@@ -4241,7 +4264,7 @@ kendo.dataviz.geometry.Arc.prototype = {
     getEndAngle: function() {
         /// <summary>
         /// Gets the end angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <returns type="Number">The end angle of the arc.</returns>
 
@@ -4269,7 +4292,7 @@ kendo.dataviz.geometry.Arc.prototype = {
     getStartAngle: function() {
         /// <summary>
         /// Gets the start angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <returns type="Number">The start angle of the arc.</returns>
 
@@ -4280,7 +4303,7 @@ kendo.dataviz.geometry.Arc.prototype = {
         /// <summary>
         /// Gets the location of a point on the arc's circumference at a given angle.
         /// </summary>
-        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <returns type="kendo.dataviz.geometry.Point">The point on the arc's circumference.</returns>
 
     },
@@ -4309,7 +4332,7 @@ kendo.dataviz.geometry.Arc.prototype = {
     setEndAngle: function(value) {
         /// <summary>
         /// Sets the end angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <param name="value" type="Number" >The new arc end angle.</param>
         /// <returns type="kendo.dataviz.geometry.Arc">The current arc instance.</returns>
@@ -4340,7 +4363,7 @@ kendo.dataviz.geometry.Arc.prototype = {
     setStartAngle: function(value) {
         /// <summary>
         /// Sets the start angle of the arc in decimal degrees.
-/// Measured in clockwise direction with 0 pointing "up".
+/// Measured in clockwise direction with 0 pointing "right".
         /// </summary>
         /// <param name="value" type="Number" >The new arc atart angle.</param>
         /// <returns type="kendo.dataviz.geometry.Arc">The current arc instance.</returns>
@@ -4444,7 +4467,7 @@ kendo.dataviz.geometry.Circle.prototype = {
         /// <summary>
         /// Gets the location of a point on the circle's circumference at a given angle.
         /// </summary>
-        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <returns type="kendo.dataviz.geometry.Point">The point on the circle's circumference.</returns>
 
     },
@@ -4681,7 +4704,7 @@ kendo.dataviz.geometry.Point.prototype = {
         /// <summary>
         /// Rotates the point around the given center.
         /// </summary>
-        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >Angle in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <param name="center" type="Object" >The rotation center. Can be a Point instance or an [x, y] array.</param>
         /// <returns type="kendo.dataviz.geometry.Point">The current Point instance.</returns>
 
@@ -5170,7 +5193,7 @@ kendo.dataviz.geometry.Transformation.prototype = {
         /// <summary>
         /// Sets rotation with the specified parameters.
         /// </summary>
-        /// <param name="angle" type="Number" >The angle of rotation in decimal degrees. Measured in clockwise direction with 0 pointing "up". Negative values or values greater than 360 will be normalized.</param>
+        /// <param name="angle" type="Number" >The angle of rotation in decimal degrees. Measured in clockwise direction with 0 pointing "right". Negative values or values greater than 360 will be normalized.</param>
         /// <param name="x" type="Number" >The center of rotation on the X axis.</param>
         /// <param name="y" type="Number" >The center of rotation on the Y axis.</param>
         /// <returns type="kendo.dataviz.geometry.Transformation">The current transformation instance.</returns>
@@ -5227,6 +5250,119 @@ $.fn.getKendoTransformation = function() {
 $.fn.kendoTransformation = function(options) {
     /// <summary>
     /// Instantiates a kendo.dataviz.geometry.Transformation widget based the DOM elements that match the selector.
+
+    /// &#10;Accepts an object with the following configuration options:
+    /// &#10;
+    /// </summary>
+    /// <param name="options" type="Object">
+    /// The widget configuration options
+    /// </param>
+};
+
+
+kendo.dataviz.map.Location = function() { };
+
+kendo.dataviz.map.Location.prototype = {
+
+
+
+
+    clone: function() {
+        /// <summary>
+        /// Creates a new instance with the same coordinates.
+        /// </summary>
+        /// <returns type="kendo.dataviz.map.Location">The new Location instance.</returns>
+
+    },
+
+
+    destination: function(destination) {
+        /// <summary>
+        /// Calculates the great-circle distance
+/// to the given destination in meters.
+        /// </summary>
+        /// <param name="destination" type="kendo.dataviz.map.Location" >The destination location.</param>
+        /// <returns type="Number">The distance to the specified location in meters.</returns>
+
+    },
+
+
+    distanceTo: function(distance,bearing) {
+        /// <summary>
+        /// Finds a destination at the given distance and bearing from this location.
+        /// </summary>
+        /// <param name="distance" type="Number" >The distance to the destination in meters.</param>
+        /// <param name="bearing" type="Number" >The initial bearing to the destination in decimal degrees.</param>
+        /// <returns type="kendo.dataviz.map.Location">The destination at the given distance and bearing.</returns>
+
+    },
+
+
+    equals: function(location) {
+        /// <summary>
+        /// Compares this location with another instance.
+        /// </summary>
+        /// <param name="location" type="kendo.dataviz.map.Location" >The location to compare with.</param>
+        /// <returns type="Boolean">true if the location coordinates match; false otherwise.</returns>
+
+    },
+
+
+    round: function(digits) {
+        /// <summary>
+        /// Rounds the location coordinates to the specified number of fractional digits.
+        /// </summary>
+        /// <param name="digits" type="Number" >Number of fractional digits.</param>
+        /// <returns type="kendo.dataviz.map.Location">The current Location instance.</returns>
+
+    },
+
+
+    toArray: function() {
+        /// <summary>
+        /// Returns the location coordinates as an [lat, lng] array.
+        /// </summary>
+        /// <returns type="Array">An array representation of the location, e.g. [39, -179]</returns>
+
+    },
+
+
+    wrap: function() {
+        /// <summary>
+        /// Wraps the latitude and longitude to fit into the [0, 90] and [0, 180] range.
+        /// </summary>
+        /// <returns type="kendo.dataviz.map.Location">The current Location instance.</returns>
+
+    },
+
+    bind: function(event, callback) {
+        /// <summary>
+        /// Binds to a widget event.
+        /// </summary>
+        /// <param name="event" type="String">The event name</param>
+        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
+    },
+
+    unbind: function(event, callback) {
+        /// <summary>
+        /// Unbinds a callback from a widget event.
+        /// </summary>
+        /// <param name="event" type="String">The event name</param>
+        /// <param name="callback" type="Function">The callback to be removed.</param>
+    }
+
+};
+
+$.fn.getKendoLocation = function() {
+    /// <summary>
+    /// Returns a reference to the kendo.dataviz.map.Location widget, instantiated on the selector.
+    /// </summary>
+    /// <returns type="kendo.dataviz.map.Location">The kendo.dataviz.map.Location instance (if present).</returns>
+};
+
+$.fn.kendoLocation = function(options) {
+    /// <summary>
+    /// Instantiates a kendo.dataviz.map.Location widget based the DOM elements that match the selector.
 
     /// &#10;Accepts an object with the following configuration options:
     /// &#10;
@@ -6984,413 +7120,6 @@ $.fn.kendoTreeMap = function(options) {
     /// &#10;
     /// &#10;colors — Array 
     /// &#10;The default colors for the treemap tiles. When all colors are used, new colors are pulled from the start again.
-    /// &#10;
-    /// </summary>
-    /// <param name="options" type="Object">
-    /// The widget configuration options
-    /// </param>
-};
-
-
-kendo.mobile.ui.Widget = function() { };
-
-kendo.mobile.ui.Widget.prototype = {
-
-
-
-
-    view: function() {
-        /// <summary>
-        /// Returns the kendo.mobile.ui.View which contains the widget. If the widget is contained in a splitview, modalview, or drawer, the respective widget instance is returned.
-        /// </summary>
-
-    },
-
-    bind: function(event, callback) {
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-    },
-
-    unbind: function(event, callback) {
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-    }
-
-};
-
-$.fn.getKendoMobileWidget = function() {
-    /// <summary>
-    /// Returns a reference to the kendo.mobile.ui.Widget widget, instantiated on the selector.
-    /// </summary>
-    /// <returns type="kendo.mobile.ui.Widget">The kendo.mobile.ui.Widget instance (if present).</returns>
-};
-
-$.fn.kendoMobileWidget = function(options) {
-    /// <summary>
-    /// Instantiates a kendo.mobile.ui.Widget widget based the DOM elements that match the selector.
-
-    /// &#10;Accepts an object with the following configuration options:
-    /// &#10;
-    /// </summary>
-    /// <param name="options" type="Object">
-    /// The widget configuration options
-    /// </param>
-};
-
-
-kendo.ui.Draggable = function() { };
-
-kendo.ui.Draggable.prototype = {
-
-
-
-
-    cancelHold: function() {
-        /// <summary>
-        /// Has effect only when holdToDrag is set to true. Cancels the activated state of the widget, caused by pressing and holding.
-        /// </summary>
-
-    },
-
-    bind: function(event, callback) {
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-    },
-
-    unbind: function(event, callback) {
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-    }
-
-};
-
-$.fn.getKendoDraggable = function() {
-    /// <summary>
-    /// Returns a reference to the kendo.ui.Draggable widget, instantiated on the selector.
-    /// </summary>
-    /// <returns type="kendo.ui.Draggable">The kendo.ui.Draggable instance (if present).</returns>
-};
-
-$.fn.kendoDraggable = function(options) {
-    /// <summary>
-    /// Instantiates a kendo.ui.Draggable widget based the DOM elements that match the selector.
-
-    /// &#10;Accepts an object with the following configuration options:
-    /// &#10;
-    /// &#10;axis — String (default: null)
-    /// &#10;Constrains the hint movement to either the horizontal (x) or vertical (y) axis. Can be set to either "x" or "y".
-    /// &#10;
-    /// &#10;container — jQuery 
-    /// &#10;If set, the hint movement is constrained to the container boundaries.
-    /// &#10;
-    /// &#10;cursorOffset — Object (default: null)
-    /// &#10;If set, specifies the offset of the hint relative to the mouse cursor/finger.
-/// &#10;By default, the hint is initially positioned on top of the draggable source offset. The option accepts an object with two keys: top and left.
-    /// &#10;
-    /// &#10;distance — Number (default: 5)
-    /// &#10;The required distance that the mouse should travel in order to initiate a drag.
-    /// &#10;
-    /// &#10;group — String (default: "default")
-    /// &#10;Used to group sets of draggable and drop targets. A draggable with the same group value as a drop target will be accepted by the drop target.
-    /// &#10;
-    /// &#10;hint — Function|jQuery 
-    /// &#10;Provides a way for customization of the drag indicator. If a function is supplied, it receives one argument - the draggable element's jQuery object.
-    /// &#10;
-    /// &#10;holdToDrag — Boolean (default: false)
-    /// &#10;Suitable for touch oriented user interface, in order to avoid collision with the touch scrolling gesture. When set to true, the widget will be activated after the user taps and holds the finger on the element for a short amount of time.The draggable will also be activated by pressing, holding and lifting the finger without any movement. Dragging it afterwards will initiate the drag immediately. The activated mode can be canceled by calling cancelHold.
-    /// &#10;
-    /// </summary>
-    /// <param name="options" type="Object">
-    /// The widget configuration options
-    /// </param>
-};
-
-
-kendo.ui.DropTarget = function() { };
-
-kendo.ui.DropTarget.prototype = {
-
-
-
-
-    destroyGroup: function() {
-        /// <summary>
-        /// Destroys all DropTarget instances from the group with the given name.
-        /// </summary>
-
-    },
-
-    bind: function(event, callback) {
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-    },
-
-    unbind: function(event, callback) {
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-    }
-
-};
-
-$.fn.getKendoDropTarget = function() {
-    /// <summary>
-    /// Returns a reference to the kendo.ui.DropTarget widget, instantiated on the selector.
-    /// </summary>
-    /// <returns type="kendo.ui.DropTarget">The kendo.ui.DropTarget instance (if present).</returns>
-};
-
-$.fn.kendoDropTarget = function(options) {
-    /// <summary>
-    /// Instantiates a kendo.ui.DropTarget widget based the DOM elements that match the selector.
-
-    /// &#10;Accepts an object with the following configuration options:
-    /// &#10;
-    /// &#10;group — String (default: "default")
-    /// &#10;Used to group sets of draggable and drop targets. A draggable with the same group value as a drop target will be accepted by the drop target.
-    /// &#10;
-    /// </summary>
-    /// <param name="options" type="Object">
-    /// The widget configuration options
-    /// </param>
-};
-
-
-kendo.ui.DropTargetArea = function() { };
-
-kendo.ui.DropTargetArea.prototype = {
-
-
-
-    bind: function(event, callback) {
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-    },
-
-    unbind: function(event, callback) {
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-    }
-
-};
-
-$.fn.getKendoDropTargetArea = function() {
-    /// <summary>
-    /// Returns a reference to the kendo.ui.DropTargetArea widget, instantiated on the selector.
-    /// </summary>
-    /// <returns type="kendo.ui.DropTargetArea">The kendo.ui.DropTargetArea instance (if present).</returns>
-};
-
-$.fn.kendoDropTargetArea = function(options) {
-    /// <summary>
-    /// Instantiates a kendo.ui.DropTargetArea widget based the DOM elements that match the selector.
-
-    /// &#10;Accepts an object with the following configuration options:
-    /// &#10;
-    /// &#10;group — String (default: "default")
-    /// &#10;Used to group sets of draggable and drop targets. A draggable with the same group value as a drop target will be accepted by the drop target.
-    /// &#10;
-    /// &#10;filter — String (default: null)
-    /// &#10;Selector to filter the drop targets in the area. Every matched element acts as a drop target and fires events on the DropTargetArea. Specifying the filter is mandatory.
-    /// &#10;
-    /// </summary>
-    /// <param name="options" type="Object">
-    /// The widget configuration options
-    /// </param>
-};
-
-
-kendo.ui.Validator = function() { };
-
-kendo.ui.Validator.prototype = {
-
-
-
-
-    errors: function() {
-        /// <summary>
-        /// Get the error messages if any.
-        /// </summary>
-        /// <returns type="Array">Messages for the failed validation rules.</returns>
-
-    },
-
-
-    hideMessages: function() {
-        /// <summary>
-        /// Hides the validation messages.
-        /// </summary>
-
-    },
-
-
-    validate: function() {
-        /// <summary>
-        /// Validates the input element(s) against the declared validation rules.
-        /// </summary>
-        /// <returns type="Boolean">true if all validation rules passed successfully.Note that if a HTML form element is set as validation container, the form submits will be automatically prevented if validation fails.</returns>
-
-    },
-
-
-    validateInput: function(input) {
-        /// <summary>
-        /// Validates the input element against the declared validation rules.
-        /// </summary>
-        /// <param name="input" type="Object" >Input element to be validated.</param>
-        /// <returns type="Boolean">true if all validation rules passed successfully.</returns>
-
-    },
-
-    bind: function(event, callback) {
-        /// <summary>
-        /// Binds to a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be executed when the event is triggered.</param>
-    },
-
-    unbind: function(event, callback) {
-        /// <summary>
-        /// Unbinds a callback from a widget event.
-        /// </summary>
-        /// <param name="event" type="String">The event name</param>
-        /// <param name="callback" type="Function">The callback to be removed.</param>
-    }
-
-};
-
-$.fn.getKendoValidator = function() {
-    /// <summary>
-    /// Returns a reference to the kendo.ui.Validator widget, instantiated on the selector.
-    /// </summary>
-    /// <returns type="kendo.ui.Validator">The kendo.ui.Validator instance (if present).</returns>
-};
-
-$.fn.kendoValidator = function(options) {
-    /// <summary>
-    /// Instantiates a kendo.ui.Validator widget based the DOM elements that match the selector.
-
-    /// &#10;Accepts an object with the following configuration options:
-    /// &#10;
-    /// &#10;errorTemplate — String 
-    /// &#10;The template which renders the validation message.
-    /// &#10;
-    /// &#10;messages — Object 
-    /// &#10;Set of messages (either strings or functions) which will be shown when given validation rule fails.
-/// &#10;By setting already existing key the appropriate built-in message will be overridden.
-    /// &#10;
-    /// &#10;rules — Object 
-    /// &#10;Set of custom validation rules. Those rules will extend the built-in ones.
-    /// &#10;
-    /// &#10;validateOnBlur — Boolean 
-    /// &#10;Determines if validation will be triggered when element loses focus. Default value is true.
-    /// &#10;
-    /// </summary>
-    /// <param name="options" type="Object">
-    /// The widget configuration options
-    /// </param>
-};
-
-
-kendo.ui.Widget = function() { };
-
-kendo.ui.Widget.prototype = {
-
-
-
-
-    bind: function() {
-        /// <summary>
-        /// Attaches a handler to an event. Examples and more info can be found in the bind section of the kendo.Observable API reference.
-        /// </summary>
-
-    },
-
-
-    destroy: function() {
-        /// <summary>
-        /// Prepares the widget for safe removal from the DOM. Detaches all event handlers and removes jQuery.data attributes to avoid memory leaks. Calls destroy method of any child Kendo widgets.
-        /// </summary>
-
-    },
-
-
-    one: function() {
-        /// <summary>
-        /// Attaches a handler to an event. The handler is executed only once. Examples and more info can be found in the one section of the
-/// kendo.Observable API reference.
-        /// </summary>
-
-    },
-
-
-    setOptions: function(newOptions) {
-        /// <summary>
-        /// Allows changing the widget configuration after initialization. Depending on the widget, some properties may not be changed, e.g. ones that influence the widget's HTML output (such as Grid scrollability or columns).
-        /// </summary>
-        /// <param name="newOptions" type="Object" >The options to be changed or added.</param>
-
-    },
-
-
-    trigger: function() {
-        /// <summary>
-        /// Executes all handlers attached to the given event. More info can be found in the trigger section of the
-/// kendo.Observable API reference.
-        /// </summary>
-
-    },
-
-
-    unbind: function() {
-        /// <summary>
-        /// Remove a previously attached event handler. More info can be found in the unbind section of the
-/// kendo.Observable API reference.
-        /// </summary>
-
-    },
-
-
-    self: null
-
-};
-
-$.fn.getKendoWidget = function() {
-    /// <summary>
-    /// Returns a reference to the kendo.ui.Widget widget, instantiated on the selector.
-    /// </summary>
-    /// <returns type="kendo.ui.Widget">The kendo.ui.Widget instance (if present).</returns>
-};
-
-$.fn.kendoWidget = function(options) {
-    /// <summary>
-    /// Instantiates a kendo.ui.Widget widget based the DOM elements that match the selector.
-
-    /// &#10;Accepts an object with the following configuration options:
     /// &#10;
     /// </summary>
     /// <param name="options" type="Object">

@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -1237,7 +1237,7 @@
                             } else if (that.footer) {
                                 footer = that.footer.find(">.k-grid-footer-wrap>table");
                             }
-                            if (!footer[0]) {
+                            if (!footer || !footer[0]) {
                                 footer = $();
                             }
                             var header = th.closest("table");
@@ -1777,7 +1777,7 @@
 
             tr = cell.parent().removeClass("k-grid-edit-row");
 
-            that._destroyEditable(); // editable should be destoryed before content of the container is changed
+            that._destroyEditable(); // editable should be destroyed before content of the container is changed
 
             that._displayCell(cell, column, model);
 
@@ -1800,11 +1800,16 @@
                 tmpl = proxy(tmpl, state.storage);
             }
 
+            that.angular("cleanup", function(){
+                return { elements: cell.parent() };
+            });
+
             cell.empty().html(tmpl(dataItem));
+
             that.angular("compile", function(){
                 return {
-                    elements: cell.get(),
-                    scopeFrom: cell.parent()
+                    elements: cell.parent(),
+                    data: [ { dataItem: dataItem } ]
                 };
             });
         },
@@ -2067,13 +2072,6 @@
                 container = that._editContainer = that.editView.element.find(".k-popup-edit-form");
             }
 
-            that.angular("compile", function(){
-                return {
-                    elements: container.get(),
-                    scopeFrom: that.tbody.find("[" + kendo.attr("uid") + "=" + model.uid + "]")
-                };
-            });
-
             that.editable = that._editContainer
                 .kendoEditable({
                     fields: fields,
@@ -2157,6 +2155,7 @@
 
             that.editable = new kendo.ui.Editable(row
                 .addClass("k-grid-edit-row"),{
+                    target: that,
                     fields: fields,
                     model: model,
                     clearContainer: false
@@ -3623,7 +3622,11 @@
                         if (menu) {
                             menu.destroy();
                         }
-                        sortable = column.sortable !== false && columnMenu.sortable !== false ? options.sortable : false;
+
+                        sortable = column.sortable !== false && columnMenu.sortable !== false && options.sortable !== false ? extend({}, options.sortable, {
+                            compare: (column.sortable || {}).compare
+                        }) : false;
+
                         filterable = options.filterable && column.filterable !== false && columnMenu.filterable !== false ? extend({ pane: that.pane }, column.filterable, options.filterable) : false;
                         menuOptions = {
                             dataSource: that.dataSource,
@@ -3717,6 +3720,8 @@
                 filterable = that.options.filterable,
                 rowheader = that.thead.find(".k-filter-row");
 
+            this._updateHeader(this.dataSource.group().length);
+
             for (var i = 0; i < columns.length; i++) {
                 var suggestDataSource,
                     col = columns[i],
@@ -3740,6 +3745,7 @@
                     }
 
                     if (cellOptions.enabled === false) {
+                        th.html("&nbsp;");
                         continue;
                     }
                     if (cellOptions.dataSource) {
@@ -3768,6 +3774,8 @@
                             operators: operators,
                             showOperators: cellOptions.showOperators
                         }).appendTo(th);
+                } else {
+                    th.html("&nbsp;");
                 }
             }
         },
@@ -4372,7 +4380,7 @@
 
             colgroup = that.thead.prev().find("col:not(.k-group-col,.k-hierarchy-col)");
             header = that.thead.find(".k-header:not(.k-group-cell,.k-hierarchy-cell)");
-            filtercellCells = that.thead.find(".k-filter-row").find("th");
+            filtercellCells = that.thead.find(".k-filter-row").find("th:not(.k-group-cell,.k-hierarchy-cell)");
 
             for (idx = 0, length = columns.length; idx < length; idx++) {
                 if (columns[idx].locked) {
@@ -4769,14 +4777,15 @@
                 length = container.find("tr:first").find("th.k-group-cell").length;
 
             if(groups > length) {
-                $(new Array(groups - length + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find("tr"));
+                $(new Array(groups - length + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find("tr:first"));
             } else if(groups < length) {
                 container.find("tr").each(function(){
                     $(this).find("th.k-group-cell")
                         .filter(":eq(" + groups + ")," + ":gt(" + groups + ")").remove();
                 });
-            } else if(length > filterCells) {
-                $(new Array(length - filterCells + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find(".k-filter-row"));
+            }
+            if(groups > filterCells) {
+                $(new Array(groups - filterCells + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find(".k-filter-row"));
             }
         },
 
@@ -5189,7 +5198,11 @@
             containersLength = containers.length,
             heights = [];
 
-          for (idx = 0; idx < length; idx++) {
+        for (idx = 0; idx < length; idx++) {
+              if (!rows2[idx]) {
+                break;
+              }
+
               if (rows[idx].style.height) {
                   rows[idx].style.height = rows2[idx].style.height = "";
               }
@@ -5225,13 +5238,13 @@
 
    function adjustRowHeight(row1, row2) {
        var height;
-       var clientHeight1 = row1.clientHeight;
-       var clientHeight2 = row2.clientHeight;
+       var offsetHeight1 = row1.offsetHeight;
+       var offsetHeight2 = row2.offsetHeight;
 
-       if (clientHeight1 > clientHeight2) {
-           height = clientHeight1 + "px";
-       } else if (clientHeight1 < clientHeight2) {
-           height = clientHeight2 + "px";
+       if (offsetHeight1 > offsetHeight2) {
+           height = offsetHeight1 + "px";
+       } else if (offsetHeight1 < offsetHeight2) {
+           height = offsetHeight2 + "px";
        }
 
        if (height) {

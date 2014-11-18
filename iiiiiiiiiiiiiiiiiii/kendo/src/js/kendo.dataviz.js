@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -40,7 +40,7 @@
         slice = [].slice,
         globalize = window.Globalize;
 
-    kendo.version = "2014.2.903";
+    kendo.version = "2014.2.1008";
 
     function Class() {}
 
@@ -656,17 +656,14 @@ function pad(number, digits, end) {
                 result = math.abs(minutes / 60).toString().split(".")[0];
                 minutes = math.abs(minutes) - (result * 60);
 
-                result = (sign ? "-" : "+") + pad(result);
+                result = (sign ? "+" : "-") + pad(result);
                 result += ":" + pad(minutes);
-            } else if (match === "zz") {
+            } else if (match === "zz" || match === "z") {
                 result = date.getTimezoneOffset() / 60;
                 sign = result < 0;
 
                 result = math.abs(result).toString().split(".")[0];
-                result = (sign ? "-" : "+") + pad(result);
-            } else if (match === "z") {
-                result = date.getTimezoneOffset() / 60;
-                result = (result > 0 ? "+" : "") + result.toString().split(".")[0];
+                result = (sign ? "+" : "-") + (match === "zz" ? pad(result) : result);
             }
 
             return result !== undefined ? result : match.slice(1, match.length - 1);
@@ -3862,8 +3859,8 @@ function pad(number, digits, end) {
             var args = arguments;
 
             function exec() {
-                lastExecTime = +new Date();
                 fn.apply(that, args);
+                lastExecTime = +new Date();
             }
 
             // first execution
@@ -5770,7 +5767,7 @@ function pad(number, digits, end) {
 
             this._navigate(to, silent, function(adapter) {
                 adapter.replace(to);
-                this.locations[this.locations - 1] = this.current;
+                this.locations[this.locations.length - 1] = this.current;
             });
         },
 
@@ -16102,8 +16099,8 @@ function pad(number, digits, end) {
                     pageX = e.pageX,
                     pageY = e.pageY;
 
-                offset.right = offset.left + element.outerWidth();
-                offset.bottom = offset.top + element.outerHeight();
+                offset.right = offset.left + element[0].clientWidth;
+                offset.bottom = offset.top + element[0].clientHeight;
 
                 if (pageX > offset.left && pageX < offset.right && pageY > offset.top && pageY < offset.bottom) {
                     return;
@@ -17911,21 +17908,27 @@ function pad(number, digits, end) {
                 slotX, slotY, from, to;
 
             if (plotBands.length) {
+                var range = this.range();
                 result = map(plotBands, function(item) {
                     from = valueOrDefault(item.from, MIN_VALUE);
                     to = valueOrDefault(item.to, MAX_VALUE);
+                    var element = [];
 
-                    if (vertical) {
-                        slotX = plotArea.axisX.lineBox();
-                        slotY = axis.getSlot(item.from, item.to, true);
-                    } else {
-                        slotX = axis.getSlot(item.from, item.to, true);
-                        slotY = plotArea.axisY.lineBox();
+                    if (isInRange(from, range) || isInRange(to, range)) {
+                        if (vertical) {
+                            slotX = plotArea.axisX.lineBox();
+                            slotY = axis.getSlot(item.from, item.to, true);
+                        } else {
+                            slotX = axis.getSlot(item.from, item.to, true);
+                            slotY = plotArea.axisY.lineBox();
+                        }
+
+                        element = view.createRect(
+                                Box2D(slotX.x1, slotY.y1, slotX.x2, slotY.y2),
+                                { fill: item.color, fillOpacity: item.opacity, zIndex: -1 });
                     }
 
-                    return view.createRect(
-                            Box2D(slotX.x1, slotY.y1, slotX.x2, slotY.y2),
-                            { fill: item.color, fillOpacity: item.opacity, zIndex: -1 });
+                    return element;
                 });
             }
 
@@ -20846,6 +20849,11 @@ function pad(number, digits, end) {
             return element.textContent || element.innerText;
         }
     }
+
+    function isInRange(value, range) {
+        return value >= range.min && value <= range.max;
+    }
+
     decodeEntities._element = document.createElement("span");
 
     // Exports ================================================================
@@ -25177,7 +25185,7 @@ function pad(number, digits, end) {
         MOUSEOVER_NS = "mouseover" + NS,
         MOUSEOUT_NS = "mouseout" + NS,
         MOUSEMOVE_NS = "mousemove" + NS,
-        MOUSEMOVE_THROTTLE = 20,
+        MOUSEMOVE_DELAY = 20,
         MOUSEWHEEL_DELAY = 150,
         MOUSEWHEEL_NS = "DOMMouseScroll" + NS + " mousewheel" + NS,
         NOTE_CLICK = dataviz.NOTE_CLICK,
@@ -25637,8 +25645,14 @@ function pad(number, digits, end) {
             element.on(MOUSEOUT_NS, proxy(chart._mouseout, chart));
             element.on(MOUSEWHEEL_NS, proxy(chart._mousewheel, chart));
             element.on(MOUSELEAVE_NS, proxy(chart._mouseleave, chart));
+
+            chart._mousemove = kendo.throttle(
+                proxy(chart._mousemove, chart),
+                MOUSEMOVE_DELAY
+            );
+
             if (chart._shouldAttachMouseMove()) {
-                element.on(MOUSEMOVE_NS, proxy(chart._mousemove, chart));
+                element.on(MOUSEMOVE_NS, chart._mousemove);
             }
 
             if (kendo.UserEvents) {
@@ -25929,9 +25943,8 @@ function pad(number, digits, end) {
                 tooltipOptions, owner, seriesPoint;
 
             if (chart._plotArea.box.containsPoint(coords)) {
-                if (point && point.tooltipTracking && point.series) {
-                    owner = point.parent;
-                    seriesPoint = owner.getNearestPoint(coords.x, coords.y, point.seriesIx);
+                if (point && point.tooltipTracking && point.series && point.parent.getNearestPoint) {
+                    seriesPoint = point.parent.getNearestPoint(coords.x, coords.y, point.seriesIx);
                     if (seriesPoint && seriesPoint != point) {
                         seriesPoint.hover(chart, e);
                         chart._activePoint = seriesPoint;
@@ -25951,20 +25964,12 @@ function pad(number, digits, end) {
         },
 
         _mousemove: function(e) {
-            var chart = this,
-                now = new Date(),
-                timestamp = chart._mousemove_ts;
+            var coords = this._eventCoordinates(e);
 
-            if (!timestamp || now - timestamp > MOUSEMOVE_THROTTLE) {
-                var coords = chart._eventCoordinates(e);
+            this._trackCrosshairs(coords);
 
-                chart._trackCrosshairs(coords);
-
-                if (chart._sharedTooltip()) {
-                    chart._trackSharedTooltip(coords);
-                }
-
-                chart._mousemove_ts = now;
+            if (this._sharedTooltip()) {
+                this._trackSharedTooltip(coords);
             }
         },
 
@@ -26315,7 +26320,7 @@ function pad(number, digits, end) {
             }
 
             if (chart._shouldAttachMouseMove()) {
-                chart.element.on(MOUSEMOVE_NS, proxy(chart._mousemove, chart));
+                chart.element.on(MOUSEMOVE_NS, chart._mousemove);
             }
 
             if (chart._hasDataSource) {
@@ -26364,9 +26369,17 @@ function pad(number, digits, end) {
                 }
             }
 
+            chart._unsetActivePoint();
+
             if (chart._tooltip) {
                 chart._tooltip.destroy();
             }
+
+            if (chart._highlight) {
+                chart._highlight.destroy();
+            }
+
+            chart._viewElement = null;
         }
     });
     deepExtend(Chart.fn, dataviz.ExportMixin);
@@ -26661,19 +26674,15 @@ function pad(number, digits, end) {
                 start = field + "1",
                 end = field + "2",
                 text = barLabel.children[0],
-                box = text.paddingBox,
-                difference;
+                parentBox = barLabel.parent.box,
+                targetBox;
 
-            if (box[end] < clipBox[start]) {
-                difference = clipBox[start] - box[end];
-            } else if (clipBox[end] < box[start]) {
-                difference = clipBox[end] - box[start];
-            }
+            if (parentBox[start] < clipBox[start] || clipBox[end] < parentBox[end]) {
+                targetBox = text.paddingBox.clone();
+                targetBox[start] = math.max(parentBox[start], clipBox[start]);
+                targetBox[end] = math.min(parentBox[end], clipBox[end]);
 
-            if (defined(difference)) {
-                box[start] += difference;
-                box[end] += difference;
-                text.reflow(box);
+                this.reflow(targetBox);
             }
         },
 
@@ -28357,15 +28366,17 @@ function pad(number, digits, end) {
 
                 for (var i = 0; i < categoryPts.length; i++) {
                     var other = categoryPts[i];
-                    var stack = point.series.stack;
-                    var otherStack = other.series.stack;
+                    if (other) {
+                        var stack = point.series.stack;
+                        var otherStack = other.series.stack;
 
-                    if ((stack && otherStack) && stack.group !== otherStack.group) {
-                        continue;
-                    }
+                        if ((stack && otherStack) && stack.group !== otherStack.group) {
+                            continue;
+                        }
 
-                    if (isNumber(other.value)) {
-                        categorySum += math.abs(other.value);
+                        if (isNumber(other.value)) {
+                            categorySum += math.abs(other.value);
+                        }
                     }
                 }
 
@@ -31023,13 +31034,13 @@ function pad(number, digits, end) {
                     strokeOpacity: valueOrDefault(options.border.opacity, options.opacity)
                 } : {},
                 rectStyle = deepExtend({
-                    fill: options.color,
+                    fill: point.color,
                     fillOpacity: options.opacity
                 }, border),
                 lineStyle = {
                     strokeOpacity: valueOrDefault(options.line.opacity, options.opacity),
                     strokeWidth: options.line.width,
-                    stroke: options.line.color || options.color,
+                    stroke: options.line.color || point.color,
                     dashType: options.line.dashType,
                     strokeLineCap: "butt"
                 };
@@ -31060,7 +31071,7 @@ function pad(number, digits, end) {
 
             if (!defined(borderColor)) {
                 borderColor =
-                    new Color(options.color).brightness(border._brightness).toHex();
+                    new Color(point.color).brightness(border._brightness).toHex();
             }
 
             return borderColor;
@@ -31143,7 +31154,6 @@ function pad(number, digits, end) {
             var options = chart.options;
             var value = data.valueFields;
             var children = chart.children;
-            var pointColor = data.fields.color || series.color;
             var valueParts = chart.splitValue(value);
             var hasValue = areNumbers(valueParts);
             var categoryPoints = chart.categoryPoints[categoryIx];
@@ -31155,15 +31165,7 @@ function pad(number, digits, end) {
             }
 
             if (hasValue) {
-                if (series.type == CANDLESTICK) {
-                    if (value.open > value.close) {
-                        pointColor = data.fields.downColor || series.downColor || series.color;
-                    }
-                }
-
-                point = chart.createPoint(
-                    data, deepExtend(fields, { series: { color: pointColor } })
-                );
+                point = chart.createPoint(data, fields);
             }
 
             cluster = children[categoryIx];
@@ -31207,12 +31209,26 @@ function pad(number, digits, end) {
             var value = data.valueFields;
             var pointOptions = deepExtend({}, series);
             var pointType = chart.pointType();
+            var color = data.fields.color || series.color;
 
             pointOptions = chart.evalPointOptions(
                 pointOptions, value, category, categoryIx, series, seriesIx
             );
 
-            return new pointType(value, pointOptions);
+            if (series.type == CANDLESTICK) {
+                if (value.open > value.close) {
+                    color = data.fields.downColor || series.downColor || series.color;
+                }
+            }
+
+            if (kendo.isFunction(series.color)) {
+                color = pointOptions.color;
+            }
+
+            var point = new pointType(value, pointOptions);
+            point.color = color;
+
+            return point;
         },
 
         splitValue: function(value) {
@@ -31306,7 +31322,7 @@ function pad(number, digits, end) {
                     strokeOpacity: lineOptions.opacity || options.opacity,
                     zIndex: -1,
                     strokeWidth: lineOptions.width,
-                    stroke: options.color || lineOptions.color,
+                    stroke: point.color || lineOptions.color,
                     dashType: lineOptions.dashType
                 };
 
@@ -31357,7 +31373,6 @@ function pad(number, digits, end) {
             var seriesIx = fields.seriesIx;
             var options = chart.options;
             var children = chart.children;
-            var pointColor = data.fields.color || series.color;
             var value = data.valueFields;
             var valueParts = chart.splitValue(value);
             var hasValue = areNumbers(valueParts);
@@ -31370,9 +31385,7 @@ function pad(number, digits, end) {
             }
 
             if (hasValue) {
-                point = chart.createPoint(
-                    data, deepExtend(fields, { series: { color: pointColor } })
-                );
+                point = chart.createPoint(data, fields);
             }
 
             cluster = children[categoryIx];
@@ -31598,8 +31611,8 @@ function pad(number, digits, end) {
                 markersBorder = deepExtend({}, markers.border);
 
                 if (!defined(markersBorder.color)) {
-                    if (defined(point.options.color)) {
-                        markersBorder.color = point.options.color;
+                    if (defined(point.color)) {
+                        markersBorder.color = point.color;
                     } else {
                         markersBorder.color =
                             new Color(markers.background).brightness(BAR_BORDER_BRIGHTNESS).toHex();
@@ -31669,7 +31682,7 @@ function pad(number, digits, end) {
             return view.createMultiLine(points, {
                     strokeOpacity: valueOrDefault(options.line.opacity, options.opacity),
                     strokeWidth: options.line.width,
-                    stroke: options.line.color || options.color,
+                    stroke: options.line.color || this.color,
                     dashType: options.line.dashType,
                     strokeLineCap: "butt",
                     data: { data: { modelId: this.modelId } }
@@ -31683,7 +31696,7 @@ function pad(number, digits, end) {
             return view.createPolyline(point.medianPoints, false, {
                     strokeOpacity: valueOrDefault(options.median.opacity, options.opacity),
                     strokeWidth: options.median.width,
-                    stroke: options.median.color || options.color,
+                    stroke: options.median.color || point.color,
                     dashType: options.median.dashType,
                     strokeLineCap: "butt",
                     data: { data: { modelId: this.modelId } }
@@ -31693,13 +31706,13 @@ function pad(number, digits, end) {
         createBody: function(view, options) {
             var point = this,
                 border = options.border.width > 0 ? {
-                    stroke: options.color || point.getBorderColor(),
+                    stroke: point.color || point.getBorderColor(),
                     strokeWidth: options.border.width,
                     dashType: options.border.dashType,
                     strokeOpacity: valueOrDefault(options.border.opacity, options.opacity)
                 } : {},
                 body = deepExtend({
-                    fill: options.color,
+                    fill: point.color,
                     fillOpacity: options.opacity,
                     data: { data: { modelId: this.modelId } }
                 }, border);
@@ -31720,7 +31733,7 @@ function pad(number, digits, end) {
             return view.createPolyline(point.meanPoints, false, {
                     strokeOpacity: valueOrDefault(options.mean.opacity, options.opacity),
                     strokeWidth: options.mean.width,
-                    stroke: options.mean.color || options.color,
+                    stroke: options.mean.color || point.color,
                     dashType: options.mean.dashType,
                     strokeLineCap: "butt",
                     data: { data: { modelId: this.modelId } }
@@ -34883,6 +34896,12 @@ function pad(number, digits, end) {
             strokeOpacity: 0.2
         },
 
+        destroy: function() {
+            this.viewElement = null;
+            this.view = null;
+            this._overlays = null;
+        },
+
         show: function(points) {
             var highlight = this,
                 view = highlight.view,
@@ -35223,7 +35242,7 @@ function pad(number, digits, end) {
             var tooltip = this,
                 options = deepExtend({}, tooltip.options, point.options.tooltip);
 
-            if (!point) {
+            if (!point || !point.tooltipAnchor) {
                 return;
             }
 
@@ -35596,9 +35615,8 @@ function pad(number, digits, end) {
     var Aggregates = {
         min: function(values) {
             var min = MAX_VALUE,
-                i,
                 length = values.length,
-                n;
+                i, n;
 
             for (i = 0; i < length; i++) {
                 n = values[i];
@@ -35612,9 +35630,8 @@ function pad(number, digits, end) {
 
         max: function(values) {
             var max = MIN_VALUE,
-                i,
                 length = values.length,
-                n;
+                i, n;
 
             for (i = 0; i < length; i++) {
                 n = values[i];
@@ -35629,8 +35646,7 @@ function pad(number, digits, end) {
         sum: function(values) {
             var length = values.length,
                 sum = 0,
-                i,
-                n;
+                i, n;
 
             for (i = 0; i < length; i++) {
                 n = values[i];
@@ -35642,11 +35658,20 @@ function pad(number, digits, end) {
             return sum;
         },
 
+        sumOrNull: function(values) {
+            var result = null;
+
+            if (countNumbers(values)) {
+                result = Aggregates.sum(values);
+            }
+
+            return result;
+        },
+
         count: function(values) {
             var length = values.length,
                 count = 0,
-                i,
-                val;
+                i, val;
 
             for (i = 0; i < length; i++) {
                 val = values[i];
@@ -36589,6 +36614,7 @@ function pad(number, digits, end) {
 
             if (unit === YEARS) {
                 result = new Date(date.getFullYear() + value, 0, 1);
+                kendo.date.adjustDST(result, 0);
             } else if (unit === MONTHS) {
                 result = new Date(date.getFullYear(), date.getMonth() + value, 1);
                 kendo.date.adjustDST(result, hours);
@@ -45144,7 +45170,9 @@ function pad(number, digits, end) {
         },
 
         _hideElement: function() {
-            this.element.hide().remove();
+            if (this.element) {
+                this.element.hide().remove();
+            }
         }
     });
 
@@ -45963,7 +45991,7 @@ function pad(number, digits, end) {
                 clipRect.template = VMLClipRect.template = renderTemplate(
                     "<#= d.tagName # #= d.renderId() #" +
                         "style='position:absolute;" +
-                        "width:#= d.box.width() #px; height:#= d.box.height() + d.box.y1#px; " +
+                        "width:#= d.box.width() + d.box.x1 #px; height:#= d.box.height() + d.box.y1 #px; " +
                         "top:0px; " +
                         "left:0px; " +
                         "clip:#= d._renderClip() #;' >" +
@@ -49734,38 +49762,26 @@ function pad(number, digits, end) {
 
             this.canvas = canvas;
             this.ctx = canvas.getContext("2d");
-            this._last = 0;
-            this._render = $.proxy(this._render, this);
+
+            this.invalidate = kendo.throttle(
+                $.proxy(this.invalidate, this),
+                FRAME_DELAY
+            );
         },
 
         destroy: function() {
             Node.fn.destroy.call(this);
-            this._clearTimeout();
+            this.canvas = null;
+            this.ctx = null;
         },
 
-        invalidate: function(force) {
-            var now = timestamp();
-
-            this._clearTimeout();
-
-            if (now - this._last > FRAME_DELAY) {
-                this._render();
-            } else {
-                this._timeout = setTimeout(this._render, FRAME_DELAY);
+        invalidate: function() {
+            if (!this.ctx) {
+                return;
             }
-        },
 
-        _clearTimeout: function() {
-            if (this._timeout) {
-                clearTimeout(this._timeout);
-                this._timeout = null;
-            }
-        },
-
-        _render: function() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.renderTo(this.ctx);
-            this._last = timestamp();
         }
     });
 
@@ -52470,6 +52486,8 @@ function pad(number, digits, end) {
         renderSize = util.renderSize,
         limit = util.limitValue;
 
+    var PAN_DELAY = 100;
+
     // Image tile layer =============================================================
     var TileLayer = Layer.extend({
         init: function(map, options) {
@@ -52506,7 +52524,10 @@ function pad(number, digits, end) {
 
             if (!kendo.support.mobileOS) {
                 if (!this._pan) {
-                    this._pan = proxy(this._throttleRender, this);
+                    this._pan = kendo.throttle(
+                        proxy(this._render, this),
+                        100
+                    );
                 }
 
                 this.map.bind("pan", this._pan);
@@ -52537,17 +52558,6 @@ function pad(number, digits, end) {
 
         _resize: function() {
             this._render();
-        },
-
-        _throttleRender: function() {
-            var layer = this,
-                now = new Date(),
-                timestamp = layer._renderTimestamp;
-
-            if (!timestamp || now - timestamp > 100) {
-                this._render();
-                layer._renderTimestamp = now;
-            }
         },
 
         _panEnd: function(e) {
@@ -68459,6 +68469,12 @@ function pad(number, digits, end) {
         kNgDelay    : true
     };
 
+    var ignoredOwnProperties = {
+        // XXX: other names to ignore here?
+        name    : true,
+        title   : true
+    };
+
     function addOption(scope, options, name, value) {
         options[name] = angular.copy(scope.$eval(value));
         if (options[name] === undefined && value.match(/^\w*$/)) {
@@ -68498,7 +68514,7 @@ function pad(number, digits, end) {
 
             if (widgetOptions.hasOwnProperty(dataName)) {
                 addOption(scope, options, dataName, value);
-            } else if (widgetOptions.hasOwnProperty(name) && name != "name") { // `name` must be forbidden. XXX: other names to ignore here?
+            } else if (widgetOptions.hasOwnProperty(name) && !ignoredOwnProperties[name]) {
                 addOption(scope, options, name, value);
             } else if (!ignoredAttributes[name]) {
                 var match = name.match(/^k(On)?([A-Z].*)/);
@@ -68639,6 +68655,9 @@ function pad(number, digits, end) {
                                     var _wrapper = $(widget.wrapper)[0];
                                     var _element = $(widget.element)[0];
                                     widget.destroy();
+                                    if (dropDestroyHandler) {
+                                        dropDestroyHandler();
+                                    }
                                     widget = null;
                                     if (_wrapper && _element) {
                                         _wrapper.parentNode.replaceChild(_element, _wrapper);
@@ -68654,7 +68673,7 @@ function pad(number, digits, end) {
                         var widget = createWidget(scope, element, attrs, role, origAttr);
                         setupBindings();
 
-                        var prev_destroy = null;
+                        var dropDestroyHandler;
                         function setupBindings() {
 
                             var isFormField = /^(input|select|textarea)$/i.test(element[0].tagName);
@@ -68668,11 +68687,8 @@ function pad(number, digits, end) {
                                 return isFormField ? formValue(element) : widget.value();
                             }
 
-                            // Cleanup after ourselves
-                            if (prev_destroy) {
-                                prev_destroy();
-                            }
-                            prev_destroy = scope.$on("$destroy", function() {
+                            dropDestroyHandler = scope.$on("$destroy", function() {
+                                dropDestroyHandler();
                                 if (widget) {
                                     if (widget.element) {
                                         widget = kendoWidgetInstance(widget.element);
@@ -68763,22 +68779,28 @@ function pad(number, digits, end) {
                                 var getter = $parse(attrs.kNgModel);
                                 var setter = getter.assign;
                                 var updating = false;
-                                widget.value(getter(scope));
+                                widget.$angular_setLogicValue(getter(scope));
 
                                 // keep in sync
                                 scope.$watch(attrs.kNgModel, function(newValue, oldValue){
+                                    if (newValue === undefined) {
+                                        // because widget's value() method usually checks if the new value is undefined,
+                                        // in which case it returns the current value rather than clearing the field.
+                                        // https://github.com/telerik/kendo-ui-core/issues/299
+                                        newValue = null;
+                                    }
                                     if (updating) {
                                         return;
                                     }
                                     if (newValue === oldValue) {
                                         return;
                                     }
-                                    widget.value(newValue);
+                                    widget.$angular_setLogicValue(newValue);
                                 });
                                 widget.first("change", function(){
                                     updating = true;
                                     scope.$apply(function(){
-                                        setter(scope, widget.value());
+                                        setter(scope, widget.$angular_getLogicValue());
                                     });
                                     updating = false;
                                 });
@@ -68811,7 +68833,7 @@ function pad(number, digits, end) {
                                         currClassList.forEach(function(cls){
                                             if (prevClassList.indexOf(cls) < 0) {
                                                 w.classList.add(cls);
-                                                if (widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
+                                                if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
                                                     widget.input[0].classList.add(cls);
                                                 }
                                             }
@@ -68819,7 +68841,7 @@ function pad(number, digits, end) {
                                         prevClassList.forEach(function(cls){
                                             if (currClassList.indexOf(cls) < 0) {
                                                 w.classList.remove(cls);
-                                                if (widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
+                                                if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
                                                     widget.input[0].classList.remove(cls);
                                                 }
                                             }
@@ -68965,10 +68987,10 @@ function pad(number, digits, end) {
             if (isDigesting) {
                 func();
             } else {
-                scope.$apply(func);
+                root.$apply(func);
             }
         } else if (!isDigesting) {
-            scope.$digest();
+            root.$digest();
         }
     }
 
@@ -69057,7 +69079,7 @@ function pad(number, digits, end) {
                       case "cleanup":
                         angular.forEach(elements, function(el){
                             var itemScope = angular.element(el).scope();
-                            if (itemScope && itemScope !== scope) {
+                            if (itemScope && itemScope !== scope && itemScope.$$kendoScope) {
                                 destroyScope(itemScope, el);
                             }
                         });
@@ -69072,6 +69094,7 @@ function pad(number, digits, end) {
                                 var vars = data && data[i];
                                 if (vars !== undefined) {
                                     itemScope = $.extend(scope.$new(), vars);
+                                    itemScope.$$kendoScope = true;
                                 }
                             }
 
@@ -69083,6 +69106,72 @@ function pad(number, digits, end) {
                 }
             });
         }
+    });
+
+    defadvice("ui.Widget", "$angular_getLogicValue", function(){
+        return this.self.value();
+    });
+
+    defadvice("ui.Widget", "$angular_setLogicValue", function(val){
+        this.self.value(val);
+    });
+
+    defadvice("ui.Select", "$angular_getLogicValue", function(){
+        var item = this.self.dataItem();
+        return item ? item.toJSON() : null;
+    });
+
+    defadvice("ui.Select", "$angular_setLogicValue", function(orig){
+        var self = this.self;
+        var val = orig != null ? orig[self.options.dataValueField || self.options.dataTextField] : null;
+        self.value(val);
+    });
+
+    defadvice("ui.MultiSelect", "$angular_getLogicValue", function(){
+        return $.map(this.self.dataItems(), function(item){
+            return item.toJSON();
+        });
+    });
+
+    defadvice("ui.MultiSelect", "$angular_setLogicValue", function(orig){
+        if (orig == null) {
+            orig = [];
+        }
+        var self = this.self;
+        var val = $.map(orig, function(item){
+            return item[self.options.dataValueField];
+        });
+        self.value(val);
+    });
+
+    defadvice("ui.AutoComplete", "$angular_getLogicValue", function(){
+        var options = this.self.options;
+
+        var values = this.self.value().split(options.separator);
+        var data = this.self.dataSource.data();
+        var dataItems = [];
+        for (var idx = 0, length = data.length; idx < length; idx++) {
+            var item = data[idx];
+            var dataValue = options.dataTextField ? item[options.dataTextField] : item;
+            for (var j = 0; j < values.length; j++) {
+                if (dataValue === values[j]) {
+                    dataItems.push(item.toJSON());
+                    break;
+                }
+            }
+        }
+        return dataItems;
+    });
+
+    defadvice("ui.AutoComplete", "$angular_setLogicValue", function(orig){
+        if (orig == null) {
+            orig = [];
+        }
+        var self = this.self;
+        var val = $.map(orig, function(item){
+            return item[self.options.dataTextField];
+        });
+        self.value(val);
     });
 
     // All event handlers that are strings are compiled the Angular way.

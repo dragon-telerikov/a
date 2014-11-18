@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -213,6 +213,7 @@ textarea.k-textbox:hover,
 .k-autocomplete,
 .k-state-highlight,
 .k-tabstrip-items .k-item,
+.k-panelbar .k-tabstrip-items .k-item,
 .km-pane-wrapper > .km-pane > .km-view > .km-content {
   background-image: none;
   background-position: 50% 50%;
@@ -652,8 +653,11 @@ div.k-filebrowser-dropzone em {
   color: #b94a48;
 }
 .k-state-disabled {
-  filter: alpha(opacity=70);
   opacity: .7;
+}
+.k-ie7 .k-state-disabled,
+.k-ie8 .k-state-disabled {
+  filter: alpha(opacity=70);
 }
 .k-tile-empty.k-state-selected,
 .k-loading-mask.k-state-selected {
@@ -1331,6 +1335,7 @@ html .km-pane-wrapper .km-widget,
   border-color: #adadad;
 }
 .k-tabstrip-items .k-state-active,
+.k-panelbar .k-tabstrip-items .k-state-active,
 .k-ie7 .k-tabstrip-items .k-state-active .k-loading {
   background-color: #ffffff;
   background-image: none;
@@ -1504,6 +1509,26 @@ html .km-pane-wrapper .km-widget,
 .k-menu,
 .k-editor {
   border-radius: 4px;
+}
+.k-grid > .k-grouping-header,
+.k-grid-header:first-child,
+.k-grid-toolbar:first-child,
+.k-scheduler > .k-scheduler-toolbar:first-child {
+  border-radius: 3px 3px 0 0;
+}
+.k-grid-header:first-child th.k-header:first-child,
+thead.k-grid-header th.k-header:first-child,
+.k-rtl thead.k-grid-header th.k-header:last-child {
+  border-radius: 3px 0 0 0;
+}
+.k-rtl .k-grid-header:first-child th.k-header:first-child,
+.k-rtl thead.k-grid-header th.k-header:first-child,
+thead.k-grid-header th.k-header:last-child {
+  border-radius: 0 3px 0 0;
+}
+.k-grid-pager,
+.k-scheduler-footer {
+  border-radius: 0 0 3px 3px;
 }
 .k-menu > .k-first {
   border-radius: 3px 0 0 3px;

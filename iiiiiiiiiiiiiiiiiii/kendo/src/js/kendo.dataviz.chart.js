@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -145,7 +145,7 @@
         MOUSEOVER_NS = "mouseover" + NS,
         MOUSEOUT_NS = "mouseout" + NS,
         MOUSEMOVE_NS = "mousemove" + NS,
-        MOUSEMOVE_THROTTLE = 20,
+        MOUSEMOVE_DELAY = 20,
         MOUSEWHEEL_DELAY = 150,
         MOUSEWHEEL_NS = "DOMMouseScroll" + NS + " mousewheel" + NS,
         NOTE_CLICK = dataviz.NOTE_CLICK,
@@ -605,8 +605,14 @@
             element.on(MOUSEOUT_NS, proxy(chart._mouseout, chart));
             element.on(MOUSEWHEEL_NS, proxy(chart._mousewheel, chart));
             element.on(MOUSELEAVE_NS, proxy(chart._mouseleave, chart));
+
+            chart._mousemove = kendo.throttle(
+                proxy(chart._mousemove, chart),
+                MOUSEMOVE_DELAY
+            );
+
             if (chart._shouldAttachMouseMove()) {
-                element.on(MOUSEMOVE_NS, proxy(chart._mousemove, chart));
+                element.on(MOUSEMOVE_NS, chart._mousemove);
             }
 
             if (kendo.UserEvents) {
@@ -897,9 +903,8 @@
                 tooltipOptions, owner, seriesPoint;
 
             if (chart._plotArea.box.containsPoint(coords)) {
-                if (point && point.tooltipTracking && point.series) {
-                    owner = point.parent;
-                    seriesPoint = owner.getNearestPoint(coords.x, coords.y, point.seriesIx);
+                if (point && point.tooltipTracking && point.series && point.parent.getNearestPoint) {
+                    seriesPoint = point.parent.getNearestPoint(coords.x, coords.y, point.seriesIx);
                     if (seriesPoint && seriesPoint != point) {
                         seriesPoint.hover(chart, e);
                         chart._activePoint = seriesPoint;
@@ -919,20 +924,12 @@
         },
 
         _mousemove: function(e) {
-            var chart = this,
-                now = new Date(),
-                timestamp = chart._mousemove_ts;
+            var coords = this._eventCoordinates(e);
 
-            if (!timestamp || now - timestamp > MOUSEMOVE_THROTTLE) {
-                var coords = chart._eventCoordinates(e);
+            this._trackCrosshairs(coords);
 
-                chart._trackCrosshairs(coords);
-
-                if (chart._sharedTooltip()) {
-                    chart._trackSharedTooltip(coords);
-                }
-
-                chart._mousemove_ts = now;
+            if (this._sharedTooltip()) {
+                this._trackSharedTooltip(coords);
             }
         },
 
@@ -1283,7 +1280,7 @@
             }
 
             if (chart._shouldAttachMouseMove()) {
-                chart.element.on(MOUSEMOVE_NS, proxy(chart._mousemove, chart));
+                chart.element.on(MOUSEMOVE_NS, chart._mousemove);
             }
 
             if (chart._hasDataSource) {
@@ -1332,9 +1329,17 @@
                 }
             }
 
+            chart._unsetActivePoint();
+
             if (chart._tooltip) {
                 chart._tooltip.destroy();
             }
+
+            if (chart._highlight) {
+                chart._highlight.destroy();
+            }
+
+            chart._viewElement = null;
         }
     });
     deepExtend(Chart.fn, dataviz.ExportMixin);
@@ -1629,19 +1634,15 @@
                 start = field + "1",
                 end = field + "2",
                 text = barLabel.children[0],
-                box = text.paddingBox,
-                difference;
+                parentBox = barLabel.parent.box,
+                targetBox;
 
-            if (box[end] < clipBox[start]) {
-                difference = clipBox[start] - box[end];
-            } else if (clipBox[end] < box[start]) {
-                difference = clipBox[end] - box[start];
-            }
+            if (parentBox[start] < clipBox[start] || clipBox[end] < parentBox[end]) {
+                targetBox = text.paddingBox.clone();
+                targetBox[start] = math.max(parentBox[start], clipBox[start]);
+                targetBox[end] = math.min(parentBox[end], clipBox[end]);
 
-            if (defined(difference)) {
-                box[start] += difference;
-                box[end] += difference;
-                text.reflow(box);
+                this.reflow(targetBox);
             }
         },
 
@@ -3325,15 +3326,17 @@
 
                 for (var i = 0; i < categoryPts.length; i++) {
                     var other = categoryPts[i];
-                    var stack = point.series.stack;
-                    var otherStack = other.series.stack;
+                    if (other) {
+                        var stack = point.series.stack;
+                        var otherStack = other.series.stack;
 
-                    if ((stack && otherStack) && stack.group !== otherStack.group) {
-                        continue;
-                    }
+                        if ((stack && otherStack) && stack.group !== otherStack.group) {
+                            continue;
+                        }
 
-                    if (isNumber(other.value)) {
-                        categorySum += math.abs(other.value);
+                        if (isNumber(other.value)) {
+                            categorySum += math.abs(other.value);
+                        }
                     }
                 }
 
@@ -5991,13 +5994,13 @@
                     strokeOpacity: valueOrDefault(options.border.opacity, options.opacity)
                 } : {},
                 rectStyle = deepExtend({
-                    fill: options.color,
+                    fill: point.color,
                     fillOpacity: options.opacity
                 }, border),
                 lineStyle = {
                     strokeOpacity: valueOrDefault(options.line.opacity, options.opacity),
                     strokeWidth: options.line.width,
-                    stroke: options.line.color || options.color,
+                    stroke: options.line.color || point.color,
                     dashType: options.line.dashType,
                     strokeLineCap: "butt"
                 };
@@ -6028,7 +6031,7 @@
 
             if (!defined(borderColor)) {
                 borderColor =
-                    new Color(options.color).brightness(border._brightness).toHex();
+                    new Color(point.color).brightness(border._brightness).toHex();
             }
 
             return borderColor;
@@ -6111,7 +6114,6 @@
             var options = chart.options;
             var value = data.valueFields;
             var children = chart.children;
-            var pointColor = data.fields.color || series.color;
             var valueParts = chart.splitValue(value);
             var hasValue = areNumbers(valueParts);
             var categoryPoints = chart.categoryPoints[categoryIx];
@@ -6123,15 +6125,7 @@
             }
 
             if (hasValue) {
-                if (series.type == CANDLESTICK) {
-                    if (value.open > value.close) {
-                        pointColor = data.fields.downColor || series.downColor || series.color;
-                    }
-                }
-
-                point = chart.createPoint(
-                    data, deepExtend(fields, { series: { color: pointColor } })
-                );
+                point = chart.createPoint(data, fields);
             }
 
             cluster = children[categoryIx];
@@ -6175,12 +6169,26 @@
             var value = data.valueFields;
             var pointOptions = deepExtend({}, series);
             var pointType = chart.pointType();
+            var color = data.fields.color || series.color;
 
             pointOptions = chart.evalPointOptions(
                 pointOptions, value, category, categoryIx, series, seriesIx
             );
 
-            return new pointType(value, pointOptions);
+            if (series.type == CANDLESTICK) {
+                if (value.open > value.close) {
+                    color = data.fields.downColor || series.downColor || series.color;
+                }
+            }
+
+            if (kendo.isFunction(series.color)) {
+                color = pointOptions.color;
+            }
+
+            var point = new pointType(value, pointOptions);
+            point.color = color;
+
+            return point;
         },
 
         splitValue: function(value) {
@@ -6274,7 +6282,7 @@
                     strokeOpacity: lineOptions.opacity || options.opacity,
                     zIndex: -1,
                     strokeWidth: lineOptions.width,
-                    stroke: options.color || lineOptions.color,
+                    stroke: point.color || lineOptions.color,
                     dashType: lineOptions.dashType
                 };
 
@@ -6325,7 +6333,6 @@
             var seriesIx = fields.seriesIx;
             var options = chart.options;
             var children = chart.children;
-            var pointColor = data.fields.color || series.color;
             var value = data.valueFields;
             var valueParts = chart.splitValue(value);
             var hasValue = areNumbers(valueParts);
@@ -6338,9 +6345,7 @@
             }
 
             if (hasValue) {
-                point = chart.createPoint(
-                    data, deepExtend(fields, { series: { color: pointColor } })
-                );
+                point = chart.createPoint(data, fields);
             }
 
             cluster = children[categoryIx];
@@ -6566,8 +6571,8 @@
                 markersBorder = deepExtend({}, markers.border);
 
                 if (!defined(markersBorder.color)) {
-                    if (defined(point.options.color)) {
-                        markersBorder.color = point.options.color;
+                    if (defined(point.color)) {
+                        markersBorder.color = point.color;
                     } else {
                         markersBorder.color =
                             new Color(markers.background).brightness(BAR_BORDER_BRIGHTNESS).toHex();
@@ -6637,7 +6642,7 @@
             return view.createMultiLine(points, {
                     strokeOpacity: valueOrDefault(options.line.opacity, options.opacity),
                     strokeWidth: options.line.width,
-                    stroke: options.line.color || options.color,
+                    stroke: options.line.color || this.color,
                     dashType: options.line.dashType,
                     strokeLineCap: "butt",
                     data: { data: { modelId: this.modelId } }
@@ -6651,7 +6656,7 @@
             return view.createPolyline(point.medianPoints, false, {
                     strokeOpacity: valueOrDefault(options.median.opacity, options.opacity),
                     strokeWidth: options.median.width,
-                    stroke: options.median.color || options.color,
+                    stroke: options.median.color || point.color,
                     dashType: options.median.dashType,
                     strokeLineCap: "butt",
                     data: { data: { modelId: this.modelId } }
@@ -6661,13 +6666,13 @@
         createBody: function(view, options) {
             var point = this,
                 border = options.border.width > 0 ? {
-                    stroke: options.color || point.getBorderColor(),
+                    stroke: point.color || point.getBorderColor(),
                     strokeWidth: options.border.width,
                     dashType: options.border.dashType,
                     strokeOpacity: valueOrDefault(options.border.opacity, options.opacity)
                 } : {},
                 body = deepExtend({
-                    fill: options.color,
+                    fill: point.color,
                     fillOpacity: options.opacity,
                     data: { data: { modelId: this.modelId } }
                 }, border);
@@ -6688,7 +6693,7 @@
             return view.createPolyline(point.meanPoints, false, {
                     strokeOpacity: valueOrDefault(options.mean.opacity, options.opacity),
                     strokeWidth: options.mean.width,
-                    stroke: options.mean.color || options.color,
+                    stroke: options.mean.color || point.color,
                     dashType: options.mean.dashType,
                     strokeLineCap: "butt",
                     data: { data: { modelId: this.modelId } }
@@ -9851,6 +9856,12 @@
             strokeOpacity: 0.2
         },
 
+        destroy: function() {
+            this.viewElement = null;
+            this.view = null;
+            this._overlays = null;
+        },
+
         show: function(points) {
             var highlight = this,
                 view = highlight.view,
@@ -10191,7 +10202,7 @@
             var tooltip = this,
                 options = deepExtend({}, tooltip.options, point.options.tooltip);
 
-            if (!point) {
+            if (!point || !point.tooltipAnchor) {
                 return;
             }
 
@@ -10564,9 +10575,8 @@
     var Aggregates = {
         min: function(values) {
             var min = MAX_VALUE,
-                i,
                 length = values.length,
-                n;
+                i, n;
 
             for (i = 0; i < length; i++) {
                 n = values[i];
@@ -10580,9 +10590,8 @@
 
         max: function(values) {
             var max = MIN_VALUE,
-                i,
                 length = values.length,
-                n;
+                i, n;
 
             for (i = 0; i < length; i++) {
                 n = values[i];
@@ -10597,8 +10606,7 @@
         sum: function(values) {
             var length = values.length,
                 sum = 0,
-                i,
-                n;
+                i, n;
 
             for (i = 0; i < length; i++) {
                 n = values[i];
@@ -10610,11 +10618,20 @@
             return sum;
         },
 
+        sumOrNull: function(values) {
+            var result = null;
+
+            if (countNumbers(values)) {
+                result = Aggregates.sum(values);
+            }
+
+            return result;
+        },
+
         count: function(values) {
             var length = values.length,
                 count = 0,
-                i,
-                val;
+                i, val;
 
             for (i = 0; i < length; i++) {
                 val = values[i];
@@ -11557,6 +11574,7 @@
 
             if (unit === YEARS) {
                 result = new Date(date.getFullYear() + value, 0, 1);
+                kendo.date.adjustDST(result, 0);
             } else if (unit === MONTHS) {
                 result = new Date(date.getFullYear(), date.getMonth() + value, 1);
                 kendo.date.adjustDST(result, hours);
