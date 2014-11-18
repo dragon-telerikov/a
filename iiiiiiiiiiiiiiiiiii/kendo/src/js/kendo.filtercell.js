@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -58,9 +58,7 @@
         }
     }
 
-    function removeDuplicates(dataSelector, dataTextField) {
-        var getter = kendo.getter(dataTextField, true);
-
+    function removeDuplicates (dataSelector, dataTextField) {
         return function(e) {
             var items = dataSelector(e),
                 result = [],
@@ -69,8 +67,7 @@
 
             while (index < items.length) {
                 var item = items[index++],
-                    text = getter(item);
-
+                    text = item[dataTextField];
                 if(!seen.hasOwnProperty(text)){
                     result.push(item);
                     seen[text] = true;
@@ -250,11 +247,11 @@
                     this.suggestDataSource =
                         DataSource.create(suggestDataSource);
 
-            }
 
-            if (!options.customDataSource) {
-                suggestDataSource._pageSize = undefined;
-                suggestDataSource.reader.data = removeDuplicates(suggestDataSource.reader.data, this.options.field);
+                if (!options.customDataSource) {
+                    suggestDataSource._pageSize = undefined;
+                    suggestDataSource.reader.data = removeDuplicates(suggestDataSource.reader.data, this.options.field);
+                }
             }
 
             this.suggestDataSource = suggestDataSource;

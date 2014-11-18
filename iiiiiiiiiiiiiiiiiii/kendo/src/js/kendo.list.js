@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -136,8 +136,7 @@
         },
 
         _header: function() {
-            var that = this;
-            var template = that.options.headerTemplate;
+            var template = this.options.headerTemplate;
             var header;
 
             if ($.isFunction(template)) {
@@ -145,16 +144,11 @@
             }
 
             if (template) {
-                that.list.prepend(template);
+                this.list.prepend(template);
 
-                header = that.ul.prev();
+                header = this.ul.prev();
 
-                that.header = header[0] ? header : null;
-                if (that.header) {
-                    that.angular("compile", function(){
-                        return { elements: that.header };
-                    });
-                }
+                this.header = header[0] ? header : null;
             }
         },
 
@@ -399,7 +393,9 @@
                     list = that.list,
                     height = that.options.height,
                     visible = that.popup.visible(),
-                    offsetTop,
+                    filterInput = that.filterInput,
+                    header = that.header,
+                    offsetHeight = 0,
                     popups;
 
                 popups = list.add(list.parent(".k-animation-container")).show();
@@ -409,11 +405,17 @@
                 popups.height(height);
 
                 if (height !== "auto") {
-                    offsetTop = that.ul[0].offsetTop;
-
-                    if (offsetTop) {
-                        height = list.height() - offsetTop;
+                    if (filterInput) {
+                        offsetHeight += filterInput.outerHeight();
                     }
+
+                    if (header) {
+                        offsetHeight += header.outerHeight();
+                    }
+                }
+
+                if (offsetHeight) {
+                    height = list.height() - offsetHeight;
                 }
 
                 that.ul.height(height);

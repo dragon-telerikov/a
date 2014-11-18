@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -3466,26 +3466,38 @@
 
             this.canvas = canvas;
             this.ctx = canvas.getContext("2d");
-
-            this.invalidate = kendo.throttle(
-                $.proxy(this.invalidate, this),
-                FRAME_DELAY
-            );
+            this._last = 0;
+            this._render = $.proxy(this._render, this);
         },
 
         destroy: function() {
             Node.fn.destroy.call(this);
-            this.canvas = null;
-            this.ctx = null;
+            this._clearTimeout();
         },
 
-        invalidate: function() {
-            if (!this.ctx) {
-                return;
-            }
+        invalidate: function(force) {
+            var now = timestamp();
 
+            this._clearTimeout();
+
+            if (now - this._last > FRAME_DELAY) {
+                this._render();
+            } else {
+                this._timeout = setTimeout(this._render, FRAME_DELAY);
+            }
+        },
+
+        _clearTimeout: function() {
+            if (this._timeout) {
+                clearTimeout(this._timeout);
+                this._timeout = null;
+            }
+        },
+
+        _render: function() {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             this.renderTo(this.ctx);
+            this._last = timestamp();
         }
     });
 

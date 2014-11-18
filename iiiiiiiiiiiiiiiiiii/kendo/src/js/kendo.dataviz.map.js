@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -2588,8 +2588,6 @@
         renderSize = util.renderSize,
         limit = util.limitValue;
 
-    var PAN_DELAY = 100;
-
     // Image tile layer =============================================================
     var TileLayer = Layer.extend({
         init: function(map, options) {
@@ -2626,10 +2624,7 @@
 
             if (!kendo.support.mobileOS) {
                 if (!this._pan) {
-                    this._pan = kendo.throttle(
-                        proxy(this._render, this),
-                        100
-                    );
+                    this._pan = proxy(this._throttleRender, this);
                 }
 
                 this.map.bind("pan", this._pan);
@@ -2660,6 +2655,17 @@
 
         _resize: function() {
             this._render();
+        },
+
+        _throttleRender: function() {
+            var layer = this,
+                now = new Date(),
+                timestamp = layer._renderTimestamp;
+
+            if (!timestamp || now - timestamp > 100) {
+                this._render();
+                layer._renderTimestamp = now;
+            }
         },
 
         _panEnd: function(e) {

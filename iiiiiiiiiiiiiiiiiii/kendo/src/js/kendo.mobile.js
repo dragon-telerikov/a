@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -40,7 +40,7 @@
         slice = [].slice,
         globalize = window.Globalize;
 
-    kendo.version = "2014.2.1008";
+    kendo.version = "2014.2.903";
 
     function Class() {}
 
@@ -656,14 +656,17 @@ function pad(number, digits, end) {
                 result = math.abs(minutes / 60).toString().split(".")[0];
                 minutes = math.abs(minutes) - (result * 60);
 
-                result = (sign ? "+" : "-") + pad(result);
+                result = (sign ? "-" : "+") + pad(result);
                 result += ":" + pad(minutes);
-            } else if (match === "zz" || match === "z") {
+            } else if (match === "zz") {
                 result = date.getTimezoneOffset() / 60;
                 sign = result < 0;
 
                 result = math.abs(result).toString().split(".")[0];
-                result = (sign ? "+" : "-") + (match === "zz" ? pad(result) : result);
+                result = (sign ? "-" : "+") + pad(result);
+            } else if (match === "z") {
+                result = date.getTimezoneOffset() / 60;
+                result = (result > 0 ? "+" : "") + result.toString().split(".")[0];
             }
 
             return result !== undefined ? result : match.slice(1, match.length - 1);
@@ -3859,8 +3862,8 @@ function pad(number, digits, end) {
             var args = arguments;
 
             function exec() {
-                fn.apply(that, args);
                 lastExecTime = +new Date();
+                fn.apply(that, args);
             }
 
             // first execution
@@ -12777,7 +12780,7 @@ function pad(number, digits, end) {
 
             this._navigate(to, silent, function(adapter) {
                 adapter.replace(to);
-                this.locations[this.locations.length - 1] = this.current;
+                this.locations[this.locations - 1] = this.current;
             });
         },
 
@@ -18296,7 +18299,7 @@ function pad(number, digits, end) {
         BERRYPHONEGAP = OS.device == "blackberry" && OS.flatVersion >= 600 && OS.flatVersion < 1000 && OS.appMode,
         VERTICAL = "km-vertical",
         CHROME =  OS.browser === "chrome",
-        BROKEN_WEBVIEW_RESIZE = OS.ios && OS.flatVersion >= 700 && OS.flatVersion < 800 && (OS.appMode || CHROME),
+        BROKEN_WEBVIEW_RESIZE = OS.ios && OS.flatVersion >= 700 && (OS.appMode || CHROME),
         INITIALLY_HORIZONTAL = (Math.abs(window.orientation) / 90 == 1),
         HORIZONTAL = "km-horizontal",
 
@@ -21945,12 +21948,6 @@ function pad(number, digits, end) {
         kNgDelay    : true
     };
 
-    var ignoredOwnProperties = {
-        // XXX: other names to ignore here?
-        name    : true,
-        title   : true
-    };
-
     function addOption(scope, options, name, value) {
         options[name] = angular.copy(scope.$eval(value));
         if (options[name] === undefined && value.match(/^\w*$/)) {
@@ -21990,7 +21987,7 @@ function pad(number, digits, end) {
 
             if (widgetOptions.hasOwnProperty(dataName)) {
                 addOption(scope, options, dataName, value);
-            } else if (widgetOptions.hasOwnProperty(name) && !ignoredOwnProperties[name]) {
+            } else if (widgetOptions.hasOwnProperty(name) && name != "name") { // `name` must be forbidden. XXX: other names to ignore here?
                 addOption(scope, options, name, value);
             } else if (!ignoredAttributes[name]) {
                 var match = name.match(/^k(On)?([A-Z].*)/);
@@ -22131,9 +22128,6 @@ function pad(number, digits, end) {
                                     var _wrapper = $(widget.wrapper)[0];
                                     var _element = $(widget.element)[0];
                                     widget.destroy();
-                                    if (dropDestroyHandler) {
-                                        dropDestroyHandler();
-                                    }
                                     widget = null;
                                     if (_wrapper && _element) {
                                         _wrapper.parentNode.replaceChild(_element, _wrapper);
@@ -22149,7 +22143,7 @@ function pad(number, digits, end) {
                         var widget = createWidget(scope, element, attrs, role, origAttr);
                         setupBindings();
 
-                        var dropDestroyHandler;
+                        var prev_destroy = null;
                         function setupBindings() {
 
                             var isFormField = /^(input|select|textarea)$/i.test(element[0].tagName);
@@ -22163,8 +22157,11 @@ function pad(number, digits, end) {
                                 return isFormField ? formValue(element) : widget.value();
                             }
 
-                            dropDestroyHandler = scope.$on("$destroy", function() {
-                                dropDestroyHandler();
+                            // Cleanup after ourselves
+                            if (prev_destroy) {
+                                prev_destroy();
+                            }
+                            prev_destroy = scope.$on("$destroy", function() {
                                 if (widget) {
                                     if (widget.element) {
                                         widget = kendoWidgetInstance(widget.element);
@@ -22255,28 +22252,22 @@ function pad(number, digits, end) {
                                 var getter = $parse(attrs.kNgModel);
                                 var setter = getter.assign;
                                 var updating = false;
-                                widget.$angular_setLogicValue(getter(scope));
+                                widget.value(getter(scope));
 
                                 // keep in sync
                                 scope.$watch(attrs.kNgModel, function(newValue, oldValue){
-                                    if (newValue === undefined) {
-                                        // because widget's value() method usually checks if the new value is undefined,
-                                        // in which case it returns the current value rather than clearing the field.
-                                        // https://github.com/telerik/kendo-ui-core/issues/299
-                                        newValue = null;
-                                    }
                                     if (updating) {
                                         return;
                                     }
                                     if (newValue === oldValue) {
                                         return;
                                     }
-                                    widget.$angular_setLogicValue(newValue);
+                                    widget.value(newValue);
                                 });
                                 widget.first("change", function(){
                                     updating = true;
                                     scope.$apply(function(){
-                                        setter(scope, widget.$angular_getLogicValue());
+                                        setter(scope, widget.value());
                                     });
                                     updating = false;
                                 });
@@ -22309,7 +22300,7 @@ function pad(number, digits, end) {
                                         currClassList.forEach(function(cls){
                                             if (prevClassList.indexOf(cls) < 0) {
                                                 w.classList.add(cls);
-                                                if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
+                                                if (widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
                                                     widget.input[0].classList.add(cls);
                                                 }
                                             }
@@ -22317,7 +22308,7 @@ function pad(number, digits, end) {
                                         prevClassList.forEach(function(cls){
                                             if (currClassList.indexOf(cls) < 0) {
                                                 w.classList.remove(cls);
-                                                if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
+                                                if (widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
                                                     widget.input[0].classList.remove(cls);
                                                 }
                                             }
@@ -22463,10 +22454,10 @@ function pad(number, digits, end) {
             if (isDigesting) {
                 func();
             } else {
-                root.$apply(func);
+                scope.$apply(func);
             }
         } else if (!isDigesting) {
-            root.$digest();
+            scope.$digest();
         }
     }
 
@@ -22555,7 +22546,7 @@ function pad(number, digits, end) {
                       case "cleanup":
                         angular.forEach(elements, function(el){
                             var itemScope = angular.element(el).scope();
-                            if (itemScope && itemScope !== scope && itemScope.$$kendoScope) {
+                            if (itemScope && itemScope !== scope) {
                                 destroyScope(itemScope, el);
                             }
                         });
@@ -22570,7 +22561,6 @@ function pad(number, digits, end) {
                                 var vars = data && data[i];
                                 if (vars !== undefined) {
                                     itemScope = $.extend(scope.$new(), vars);
-                                    itemScope.$$kendoScope = true;
                                 }
                             }
 
@@ -22582,72 +22572,6 @@ function pad(number, digits, end) {
                 }
             });
         }
-    });
-
-    defadvice("ui.Widget", "$angular_getLogicValue", function(){
-        return this.self.value();
-    });
-
-    defadvice("ui.Widget", "$angular_setLogicValue", function(val){
-        this.self.value(val);
-    });
-
-    defadvice("ui.Select", "$angular_getLogicValue", function(){
-        var item = this.self.dataItem();
-        return item ? item.toJSON() : null;
-    });
-
-    defadvice("ui.Select", "$angular_setLogicValue", function(orig){
-        var self = this.self;
-        var val = orig != null ? orig[self.options.dataValueField || self.options.dataTextField] : null;
-        self.value(val);
-    });
-
-    defadvice("ui.MultiSelect", "$angular_getLogicValue", function(){
-        return $.map(this.self.dataItems(), function(item){
-            return item.toJSON();
-        });
-    });
-
-    defadvice("ui.MultiSelect", "$angular_setLogicValue", function(orig){
-        if (orig == null) {
-            orig = [];
-        }
-        var self = this.self;
-        var val = $.map(orig, function(item){
-            return item[self.options.dataValueField];
-        });
-        self.value(val);
-    });
-
-    defadvice("ui.AutoComplete", "$angular_getLogicValue", function(){
-        var options = this.self.options;
-
-        var values = this.self.value().split(options.separator);
-        var data = this.self.dataSource.data();
-        var dataItems = [];
-        for (var idx = 0, length = data.length; idx < length; idx++) {
-            var item = data[idx];
-            var dataValue = options.dataTextField ? item[options.dataTextField] : item;
-            for (var j = 0; j < values.length; j++) {
-                if (dataValue === values[j]) {
-                    dataItems.push(item.toJSON());
-                    break;
-                }
-            }
-        }
-        return dataItems;
-    });
-
-    defadvice("ui.AutoComplete", "$angular_setLogicValue", function(orig){
-        if (orig == null) {
-            orig = [];
-        }
-        var self = this.self;
-        var val = $.map(orig, function(item){
-            return item[self.options.dataTextField];
-        });
-        self.value(val);
     });
 
     // All event handlers that are strings are compiled the Angular way.

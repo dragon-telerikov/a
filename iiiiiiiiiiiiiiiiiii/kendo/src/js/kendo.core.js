@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -38,7 +38,7 @@
         slice = [].slice,
         globalize = window.Globalize;
 
-    kendo.version = "2014.2.1008";
+    kendo.version = "2014.2.903";
 
     function Class() {}
 
@@ -654,14 +654,17 @@ function pad(number, digits, end) {
                 result = math.abs(minutes / 60).toString().split(".")[0];
                 minutes = math.abs(minutes) - (result * 60);
 
-                result = (sign ? "+" : "-") + pad(result);
+                result = (sign ? "-" : "+") + pad(result);
                 result += ":" + pad(minutes);
-            } else if (match === "zz" || match === "z") {
+            } else if (match === "zz") {
                 result = date.getTimezoneOffset() / 60;
                 sign = result < 0;
 
                 result = math.abs(result).toString().split(".")[0];
-                result = (sign ? "+" : "-") + (match === "zz" ? pad(result) : result);
+                result = (sign ? "-" : "+") + pad(result);
+            } else if (match === "z") {
+                result = date.getTimezoneOffset() / 60;
+                result = (result > 0 ? "+" : "") + result.toString().split(".")[0];
             }
 
             return result !== undefined ? result : match.slice(1, match.length - 1);
@@ -3857,8 +3860,8 @@ function pad(number, digits, end) {
             var args = arguments;
 
             function exec() {
-                fn.apply(that, args);
                 lastExecTime = +new Date();
+                fn.apply(that, args);
             }
 
             // first execution

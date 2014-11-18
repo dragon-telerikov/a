@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -40,7 +40,7 @@
         slice = [].slice,
         globalize = window.Globalize;
 
-    kendo.version = "2014.2.1008";
+    kendo.version = "2014.2.903";
 
     function Class() {}
 
@@ -656,14 +656,17 @@ function pad(number, digits, end) {
                 result = math.abs(minutes / 60).toString().split(".")[0];
                 minutes = math.abs(minutes) - (result * 60);
 
-                result = (sign ? "+" : "-") + pad(result);
+                result = (sign ? "-" : "+") + pad(result);
                 result += ":" + pad(minutes);
-            } else if (match === "zz" || match === "z") {
+            } else if (match === "zz") {
                 result = date.getTimezoneOffset() / 60;
                 sign = result < 0;
 
                 result = math.abs(result).toString().split(".")[0];
-                result = (sign ? "+" : "-") + (match === "zz" ? pad(result) : result);
+                result = (sign ? "-" : "+") + pad(result);
+            } else if (match === "z") {
+                result = date.getTimezoneOffset() / 60;
+                result = (result > 0 ? "+" : "") + result.toString().split(".")[0];
             }
 
             return result !== undefined ? result : match.slice(1, match.length - 1);
@@ -3859,8 +3862,8 @@ function pad(number, digits, end) {
             var args = arguments;
 
             function exec() {
-                fn.apply(that, args);
                 lastExecTime = +new Date();
+                fn.apply(that, args);
             }
 
             // first execution
@@ -4195,7 +4198,7 @@ function pad(number, digits, end) {
 
             this._navigate(to, silent, function(adapter) {
                 adapter.replace(to);
-                this.locations[this.locations.length - 1] = this.current;
+                this.locations[this.locations - 1] = this.current;
             });
         },
 
@@ -13067,8 +13070,6 @@ function pad(number, digits, end) {
                for (var child = lastChild ? lastChild.nextSibling : parent.firstChild; child; child = child.nextSibling) {
                    this.nodes.push(child);
                }
-           } else {
-               this.nodes = cached.nodes.slice(0);
            }
        }
     };
@@ -17613,11 +17614,7 @@ function pad(number, digits, end) {
             element.toggleClass(DISABLEDSTATE, !enable)
                    .attr("aria-disabled", !enable)
                    .attr(DISABLED, !enable);
-            // prevent 'Unspecified error' in IE when inside iframe
-            try {
-                element.blur();
-            } catch (err) {
-            }
+            element.blur();
         }
     });
 
@@ -18705,7 +18702,7 @@ function pad(number, digits, end) {
         _compileTemplates: function(templates) {
             var that = this;
             var kendoTemplate = kendo.template;
-
+            
             that._compiled = {};
 
             $.each(templates, function(key, value) {
@@ -18807,7 +18804,7 @@ function pad(number, digits, end) {
                 y = options.position.top,
                 allowHideAfter = options.allowHideAfter,
                 popup, openPopup, attachClick, closeIcon;
-
+            
             openPopup = $("." + that._guid).last();
 
             popup = new kendo.ui.Popup(wrapper, {
@@ -18819,7 +18816,7 @@ function pad(number, digits, end) {
                 collision: "",
                 isRtl: that._isRtl,
                 close: function(e) {
-                    that._triggerHide(this.element);
+                    that.trigger(HIDE, {element: this.element});
                 },
                 deactivate: function(e) {
                     e.sender.element.off(NS);
@@ -18927,14 +18924,7 @@ function pad(number, digits, end) {
                 wrapper.off(NS).find(KICLOSE).off(NS);
                 wrapper.remove();
             }}));
-            this._triggerHide(wrapper);
-        },
-
-        _triggerHide: function(element) {
-            this.trigger(HIDE, { element: element });
-            this.angular("cleanup", function(){
-                return { elements: element };
-            });
+            this.trigger(HIDE, {element: wrapper});
         },
 
         show: function(content, type) {
@@ -18948,7 +18938,7 @@ function pad(number, digits, end) {
             }
 
             if (content !== null && content !== undefined && content !== "") {
-
+                
                 if (kendo.isFunction(content)) {
                     content = content();
                 }
@@ -18967,14 +18957,7 @@ function pad(number, digits, end) {
                     .attr("data-role", "alert")
                     .css({width: options.width, height: options.height})
                     .append(that._getCompiled(type)(args));
-
-                that.angular("compile", function(){
-                    return {
-                        elements: wrapper,
-                        data: [{ dataItem: args }]
-                    };
-                });
-
+                
                 if ($(options.appendTo)[0]) {
                     that._showStatic(wrapper, options);
                 } else {
@@ -19026,7 +19009,7 @@ function pad(number, digits, end) {
         getNotifications: function() {
             var that = this,
                 guidElements = $("." + that._guid);
-
+                
             if (that.options.appendTo) {
                 return guidElements;
             } else {
@@ -19431,8 +19414,8 @@ function pad(number, digits, end) {
                     pageX = e.pageX,
                     pageY = e.pageY;
 
-                offset.right = offset.left + element[0].clientWidth;
-                offset.bottom = offset.top + element[0].clientHeight;
+                offset.right = offset.left + element.outerWidth();
+                offset.bottom = offset.top + element.outerHeight();
 
                 if (pageX > offset.left && pageX < offset.right && pageY > offset.top && pageY < offset.bottom) {
                     return;
@@ -19620,8 +19603,7 @@ function pad(number, digits, end) {
         },
 
         _header: function() {
-            var that = this;
-            var template = that.options.headerTemplate;
+            var template = this.options.headerTemplate;
             var header;
 
             if ($.isFunction(template)) {
@@ -19629,16 +19611,11 @@ function pad(number, digits, end) {
             }
 
             if (template) {
-                that.list.prepend(template);
+                this.list.prepend(template);
 
-                header = that.ul.prev();
+                header = this.ul.prev();
 
-                that.header = header[0] ? header : null;
-                if (that.header) {
-                    that.angular("compile", function(){
-                        return { elements: that.header };
-                    });
-                }
+                this.header = header[0] ? header : null;
             }
         },
 
@@ -19883,7 +19860,9 @@ function pad(number, digits, end) {
                     list = that.list,
                     height = that.options.height,
                     visible = that.popup.visible(),
-                    offsetTop,
+                    filterInput = that.filterInput,
+                    header = that.header,
+                    offsetHeight = 0,
                     popups;
 
                 popups = list.add(list.parent(".k-animation-container")).show();
@@ -19893,11 +19872,17 @@ function pad(number, digits, end) {
                 popups.height(height);
 
                 if (height !== "auto") {
-                    offsetTop = that.ul[0].offsetTop;
-
-                    if (offsetTop) {
-                        height = list.height() - offsetTop;
+                    if (filterInput) {
+                        offsetHeight += filterInput.outerHeight();
                     }
+
+                    if (header) {
+                        offsetHeight += header.outerHeight();
+                    }
+                }
+
+                if (offsetHeight) {
+                    height = list.height() - offsetHeight;
                 }
 
                 that.ul.height(height);
@@ -23924,6 +23909,11 @@ function pad(number, digits, end) {
             }
         },
 
+        _iconMousedown: function(e) {
+            this.wrapper.focusin();
+            e.preventDefault();
+        },
+
         _span: function() {
             var that = this,
                 wrapper = that.wrapper,
@@ -23941,7 +23931,8 @@ function pad(number, digits, end) {
 
             that.span = span;
             that._inputWrapper = $(wrapper[0].firstChild);
-            that._arrow = wrapper.find(".k-icon");
+            that._arrow = wrapper.find(".k-icon")
+                                 .mousedown(proxy(that._iconMousedown, that));
         },
 
         _wrapper: function() {
@@ -28362,21 +28353,6 @@ function pad(number, digits, end) {
 
             if (element.is("input")) {
                 element.appendTo(content);
-
-                // if there exists a <label> associated with this
-                // input field, we must catch clicks on it to prevent
-                // the built-in color picker from showing up.
-                // https://github.com/telerik/kendo-ui-core/issues/292
-
-                var label = element.closest("label");
-                var id = element.attr("id");
-                if (id) {
-                    label = label.add('label[for="' + id + '"]');
-                }
-                label.click(function(ev){
-                    that.open();
-                    ev.preventDefault();
-                });
             }
 
             that._tabIndex = element.attr("tabIndex") || 0;
@@ -30787,9 +30763,7 @@ function pad(number, digits, end) {
                 targetHref = target.attr("href"),
                 sampleHref = $("<a href='#' />").attr("href"),
                 isLink = (!!href && href !== sampleHref),
-                isLocalLink = isLink && !!href.match(/^#/),
-                isTargetLink = (!!targetHref && targetHref !== sampleHref),
-                shouldCloseTheRootItem = (options.openOnClick && childGroupVisible && that._isRootItem(element));
+                isTargetLink = (!!targetHref && targetHref !== sampleHref);
 
             if (!options.openOnClick && element.children(templateSelector)[0]) {
                 return;
@@ -30809,7 +30783,7 @@ function pad(number, digits, end) {
             childGroup = element.children(popupSelector);
             childGroupVisible = childGroup.is(":visible");
 
-            if (options.closeOnClick && (!isLink || isLocalLink) && (!childGroup.length || shouldCloseTheRootItem)) {
+            if (options.closeOnClick && !isLink && (!childGroup.length || (options.openOnClick && childGroupVisible && that._isRootItem(element)))) {
                 element.removeClass(HOVERSTATE).css("height"); // Force refresh for Chrome
                 that._oldHoverItem = that._findRootParent(element);
                 that.close(link.parentsUntil(that.element, allItemsSelector));
@@ -30824,7 +30798,7 @@ function pad(number, digits, end) {
                 link[0].click();
             }
 
-            if ((!that._isRootItem(element) || !options.openOnClick) && !kendo.support.touch && !((pointers || msPointers) && that._isRootItem(element.closest(allItemsSelector)))) {
+            if ((!element.parent().hasClass(MENU) || !options.openOnClick) && !kendo.support.touch && !((pointers || msPointers) && that._isRootItem(element.closest(allItemsSelector)))) {
                 return;
             }
 
@@ -31609,7 +31583,7 @@ function pad(number, digits, end) {
                 that.dataSource.unbind(CHANGE, that._refreshHandler);
             }
 
-            if (that.options.columns && that.owner && that._updateColumnsMenuHandler) {
+            if (that.options.columns && that.owner) {
                 that.owner.unbind("columnShow", that._updateColumnsMenuHandler);
                 that.owner.unbind("columnHide", that._updateColumnsMenuHandler);
             }
@@ -31746,7 +31720,6 @@ function pad(number, digits, end) {
         _sortDataSource: function(item, dir) {
             var that = this,
                 sortable = that.options.sortable,
-                compare = sortable.compare === null ? undefined : sortable.compare,
                 dataSource = that.dataSource,
                 idx,
                 length,
@@ -31760,7 +31733,7 @@ function pad(number, digits, end) {
             }
 
             if (sortable === true || sortable.mode === "single") {
-                sort = [ { field: that.field, dir: dir, compare: compare} ];
+                sort = [ { field: that.field, dir: dir } ];
             } else {
                 for (idx = 0, length = sort.length; idx < length; idx++) {
                     if (sort[idx].field === that.field) {
@@ -31768,7 +31741,7 @@ function pad(number, digits, end) {
                         break;
                     }
                 }
-                sort.push({ field: that.field, dir: dir, compare: compare });
+                sort.push({ field: that.field, dir: dir });
             }
 
             dataSource.sort(sort);
@@ -36767,7 +36740,7 @@ function pad(number, digits, end) {
                             } else if (that.footer) {
                                 footer = that.footer.find(">.k-grid-footer-wrap>table");
                             }
-                            if (!footer || !footer[0]) {
+                            if (!footer[0]) {
                                 footer = $();
                             }
                             var header = th.closest("table");
@@ -37307,7 +37280,7 @@ function pad(number, digits, end) {
 
             tr = cell.parent().removeClass("k-grid-edit-row");
 
-            that._destroyEditable(); // editable should be destroyed before content of the container is changed
+            that._destroyEditable(); // editable should be destoryed before content of the container is changed
 
             that._displayCell(cell, column, model);
 
@@ -37330,16 +37303,11 @@ function pad(number, digits, end) {
                 tmpl = proxy(tmpl, state.storage);
             }
 
-            that.angular("cleanup", function(){
-                return { elements: cell.parent() };
-            });
-
             cell.empty().html(tmpl(dataItem));
-
             that.angular("compile", function(){
                 return {
-                    elements: cell.parent(),
-                    data: [ { dataItem: dataItem } ]
+                    elements: cell.get(),
+                    scopeFrom: cell.parent()
                 };
             });
         },
@@ -37602,6 +37570,13 @@ function pad(number, digits, end) {
                 container = that._editContainer = that.editView.element.find(".k-popup-edit-form");
             }
 
+            that.angular("compile", function(){
+                return {
+                    elements: container.get(),
+                    scopeFrom: that.tbody.find("[" + kendo.attr("uid") + "=" + model.uid + "]")
+                };
+            });
+
             that.editable = that._editContainer
                 .kendoEditable({
                     fields: fields,
@@ -37685,7 +37660,6 @@ function pad(number, digits, end) {
 
             that.editable = new kendo.ui.Editable(row
                 .addClass("k-grid-edit-row"),{
-                    target: that,
                     fields: fields,
                     model: model,
                     clearContainer: false
@@ -39152,11 +39126,7 @@ function pad(number, digits, end) {
                         if (menu) {
                             menu.destroy();
                         }
-
-                        sortable = column.sortable !== false && columnMenu.sortable !== false && options.sortable !== false ? extend({}, options.sortable, {
-                            compare: (column.sortable || {}).compare
-                        }) : false;
-
+                        sortable = column.sortable !== false && columnMenu.sortable !== false ? options.sortable : false;
                         filterable = options.filterable && column.filterable !== false && columnMenu.filterable !== false ? extend({ pane: that.pane }, column.filterable, options.filterable) : false;
                         menuOptions = {
                             dataSource: that.dataSource,
@@ -39250,8 +39220,6 @@ function pad(number, digits, end) {
                 filterable = that.options.filterable,
                 rowheader = that.thead.find(".k-filter-row");
 
-            this._updateHeader(this.dataSource.group().length);
-
             for (var i = 0; i < columns.length; i++) {
                 var suggestDataSource,
                     col = columns[i],
@@ -39275,7 +39243,6 @@ function pad(number, digits, end) {
                     }
 
                     if (cellOptions.enabled === false) {
-                        th.html("&nbsp;");
                         continue;
                     }
                     if (cellOptions.dataSource) {
@@ -39304,8 +39271,6 @@ function pad(number, digits, end) {
                             operators: operators,
                             showOperators: cellOptions.showOperators
                         }).appendTo(th);
-                } else {
-                    th.html("&nbsp;");
                 }
             }
         },
@@ -39910,7 +39875,7 @@ function pad(number, digits, end) {
 
             colgroup = that.thead.prev().find("col:not(.k-group-col,.k-hierarchy-col)");
             header = that.thead.find(".k-header:not(.k-group-cell,.k-hierarchy-cell)");
-            filtercellCells = that.thead.find(".k-filter-row").find("th:not(.k-group-cell,.k-hierarchy-cell)");
+            filtercellCells = that.thead.find(".k-filter-row").find("th");
 
             for (idx = 0, length = columns.length; idx < length; idx++) {
                 if (columns[idx].locked) {
@@ -40307,15 +40272,14 @@ function pad(number, digits, end) {
                 length = container.find("tr:first").find("th.k-group-cell").length;
 
             if(groups > length) {
-                $(new Array(groups - length + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find("tr:first"));
+                $(new Array(groups - length + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find("tr"));
             } else if(groups < length) {
                 container.find("tr").each(function(){
                     $(this).find("th.k-group-cell")
                         .filter(":eq(" + groups + ")," + ":gt(" + groups + ")").remove();
                 });
-            }
-            if(groups > filterCells) {
-                $(new Array(groups - filterCells + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find(".k-filter-row"));
+            } else if(length > filterCells) {
+                $(new Array(length - filterCells + 1).join('<th class="k-group-cell k-header">&nbsp;</th>')).prependTo(container.find(".k-filter-row"));
             }
         },
 
@@ -40728,11 +40692,7 @@ function pad(number, digits, end) {
             containersLength = containers.length,
             heights = [];
 
-        for (idx = 0; idx < length; idx++) {
-              if (!rows2[idx]) {
-                break;
-              }
-
+          for (idx = 0; idx < length; idx++) {
               if (rows[idx].style.height) {
                   rows[idx].style.height = rows2[idx].style.height = "";
               }
@@ -40768,13 +40728,13 @@ function pad(number, digits, end) {
 
    function adjustRowHeight(row1, row2) {
        var height;
-       var offsetHeight1 = row1.offsetHeight;
-       var offsetHeight2 = row2.offsetHeight;
+       var clientHeight1 = row1.clientHeight;
+       var clientHeight2 = row2.clientHeight;
 
-       if (offsetHeight1 > offsetHeight2) {
-           height = offsetHeight1 + "px";
-       } else if (offsetHeight1 < offsetHeight2) {
-           height = offsetHeight2 + "px";
+       if (clientHeight1 > clientHeight2) {
+           height = clientHeight1 + "px";
+       } else if (clientHeight1 < clientHeight2) {
+           height = clientHeight2 + "px";
        }
 
        if (height) {
@@ -44665,9 +44625,9 @@ function pad(number, digits, end) {
         linkOpenInNewWindow: "Open link in new window",
         dialogUpdate: "Update",
         dialogInsert: "Insert",
+        dialogButtonSeparator: "or",
         dialogCancel: "Cancel",
         createTable: "Create table",
-        createTableHint: "Create a {0} x {1} table",
         addColumnLeft: "Add column on the left",
         addColumnRight: "Add column on the right",
         addRowAbove: "Add row above",
@@ -44998,15 +44958,9 @@ function pad(number, digits, end) {
                 .on("mousedown" + NS, function(e) {
                     editor._selectionStarted = true;
 
-                    // handle middle-click and ctrl-click on links
-                    if (browser.gecko) {
-                        return;
-                    }
-
                     var target = $(e.target);
 
-                    if ((e.which == 2 || (e.which == 1 && e.ctrlKey)) &&
-                        target.is("a[href]")) {
+                    if (!browser.gecko && e.which == 2 && target.is("a[href]")) {
                         window.open(target.attr("href"), "_new");
                     }
                 })
@@ -45086,8 +45040,7 @@ function pad(number, digits, end) {
             encoded: true,
             domain: null,
             serialization: {
-                entities: true,
-                scripts: true
+                entities: true
             },
             stylesheets: [],
             dialogOptions: {
@@ -45198,8 +45151,6 @@ function pad(number, digits, end) {
 
             this.selectionRestorePoint = null;
             this.update();
-
-            this.toolbar.refreshTools();
         },
 
         saveSelection: function(range) {
@@ -45406,7 +45357,7 @@ function pad(number, digits, end) {
             Tool: Tool,
             FormatTool: FormatTool,
             _bomFill: bomFill,
-            emptyElementContent: (browser.msie && browser.version < 11) ? '\ufeff' : '<br class="k-br" />'
+            emptyElementContent: browser.msie ? '\ufeff' : '<br _moz_dirty="" />'
         }
     });
 
@@ -45929,7 +45880,7 @@ var Dom = {
     },
 
     editableParent: function(node) {
-        while (node && (node.nodeType == 3 || node.contentEditable !== 'true')) {
+        while (node.nodeType == 3 || node.contentEditable !== 'true') {
             node = node.parentNode;
         }
 
@@ -46165,13 +46116,10 @@ var Dom = {
     },
 
     ensureTrailingBreak: function(node) {
-        var lastChild = node.lastChild;
-        var name = lastChild && Dom.name(lastChild);
+        var name = node.lastChild && Dom.name(node.lastChild);
         var br;
 
-        if (!name ||
-            (name != "br" && name != "img") ||
-            (name == "br" && lastChild.className != "k-br")) {
+        if (!name || name != "br" && name != "img") {
             br = node.ownerDocument.createElement("br");
             br.className = "k-br";
             node.appendChild(br);
@@ -46198,7 +46146,6 @@ var pixelRe = /^\d+(\.\d*)?(px)?$/i;
 var emptyPRe = /<p><\/p>/i;
 var cssDeclaration = /([\w|\-]+)\s*:\s*([^;]+);?/i;
 var sizzleAttr = /^sizzle-\d+/i;
-var scriptAttr = /^k-script-/i;
 var onerrorRe = /\s*onerror\s*=\s*(?:'|")?([^'">\s]*)(?:'|")?/i;
 
 var div = document.createElement("div");
@@ -46263,23 +46210,6 @@ var Serializer = {
         }
     },
 
-    _preventScriptExecution: function(root) {
-        $(root).find("*").each(function() {
-            var attributes = this.attributes;
-            var attribute, i, l, name;
-
-            for (i = 0, l = attributes.length; i < l; i++) {
-                attribute = attributes[i];
-                name = attribute.nodeName;
-
-                if (attribute.specified && /^on/i.test(name)) {
-                    this.removeAttribute(name);
-                    this.setAttribute("k-script-" + name, attribute.nodeValue);
-                }
-            }
-        });
-    },
-
     htmlToDom: function(html, root) {
         var browser = kendo.support.browser;
         var msie = browser.msie;
@@ -46322,8 +46252,6 @@ var Serializer = {
 
             Serializer._resetOrderedLists(root);
         }
-
-        Serializer._preventScriptExecution(root);
 
         Serializer._fillEmptyElements(root);
 
@@ -46392,7 +46320,6 @@ var Serializer = {
                 }
             }
         };
-        options = options || {};
 
         function styleAttr(cssText) {
             // In IE < 8 the style attribute does not return proper nodeValue
@@ -46482,8 +46409,6 @@ var Serializer = {
                     specified = false;
                 } else if (name.indexOf('_moz') >= 0) {
                     specified = false;
-                } else if (scriptAttr.test(name)) {
-                    specified = !!options.scripts;
                 }
 
                 if (specified) {
@@ -46508,8 +46433,6 @@ var Serializer = {
                     continue;
                 }
 
-                name = name.replace(scriptAttr, "");
-
                 result.push(' ');
                 result.push(name);
                 result.push('="');
@@ -46517,7 +46440,7 @@ var Serializer = {
                 if (name == 'style') {
                     styleAttr(value || node.style.cssText);
                 } else if (name == 'src' || name == 'href') {
-                    result.push(kendo.htmlEncode(node.getAttribute(name, 2)));
+                    result.push(node.getAttribute(name, 2));
                 } else {
                     result.push(dom.fillAttrs[name] ? name : value);
                 }
@@ -46549,10 +46472,6 @@ var Serializer = {
                 }
 
                 if (dom.isInline(node) && node.childNodes.length == 1 && node.firstChild.nodeType == 3&&  !text(node.firstChild)) {
-                    return;
-                }
-
-                if (!options.scripts && tagName == "telerik:script") {
                     return;
                 }
 
@@ -50907,7 +50826,7 @@ var ImageCommand = Command.extend({
     insertImage: function(img, range) {
         var attributes = this.attributes;
         var doc = RangeUtils.documentFromRange(range);
-
+        
         if (attributes.src && attributes.src != "http://") {
 
             var removeIEAttributes = function() {
@@ -51891,7 +51810,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
 
             // detach from editor that was previously listened to
             if (that._editor) {
-                that._editor.unbind("select", proxy(that.refreshTools, that));
+                that._editor.unbind("select", proxy(that._updateTool, that));
             }
 
             that._editor = editor;
@@ -51945,7 +51864,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
                 ui.closest(".k-colorpicker", that.element).next(".k-colorpicker").addClass("k-editor-widget");
             });
 
-            editor.bind("select", proxy(that.refreshTools, that));
+            editor.bind("select", proxy(that._updateTool, that));
 
             that.update();
 
@@ -52315,7 +52234,7 @@ registerTool("cleanFormatting", new Tool({ command: CleanFormatCommand, template
             return tool[0] ? tool[0].substring(tool[0].lastIndexOf("-") + 1) : "custom";
         },
 
-        refreshTools: function() {
+        _updateTool: function() {
             var that = this,
                 editor = that._editor,
                 range = editor.getRange(),
@@ -52472,7 +52391,7 @@ var InsertTableTool = PopupTool.extend({
             popupTemplate:
                 "<div class='k-ct-popup'>" +
                     new Array(this.cols * this.rows + 1).join("<span class='k-ct-cell k-state-disabled' />") +
-                    "<div class='k-status'></div>" +
+                    "<div class='k-status'>Cancel</div>" +
                 "</div>"
         }));
     },
@@ -52530,15 +52449,14 @@ var InsertTableTool = PopupTool.extend({
     },
 
     _setTableSize: function(size) {
-        var element = this._popup.element;
+        var element = this._popup.element; 
         var status = element.find(".k-status");
         var cells = element.find(".k-ct-cell");
         var rows = this.rows;
         var cols = this.cols;
-        var messages = this._editor.options.messages;
 
         if (this._valid(size)) {
-            status.text(kendo.format(messages.createTableHint, size.row, size.col));
+            status.text(kendo.format("Create a {0} x {1} table", size.row, size.col));
 
             cells.each(function(i) {
                 $(this).toggleClass(
@@ -52547,7 +52465,7 @@ var InsertTableTool = PopupTool.extend({
                 );
             });
         } else {
-            status.text(messages.dialogCancel);
+            status.text("Cancel");
             cells.removeClass(SELECTEDSTATE);
         }
     },
@@ -52596,13 +52514,8 @@ var InsertTableTool = PopupTool.extend({
     },
 
     _open: function() {
-        var messages = this._editor.options.messages;
-
         PopupTool.fn._open.call(this);
-
-        this.popup().element
-            .find(".k-status").text(messages.dialogCancel).end()
-            .find(".k-ct-cell").removeClass(SELECTEDSTATE);
+        this.popup().element.find(".k-ct-cell").removeClass(SELECTEDSTATE);
     },
 
     _close: function() {
@@ -52940,10 +52853,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             if (value === undefined) {
                 return this.element.val();
-            }
-
-            if (value === null) {
-                value = "";
             }
 
             if (!emptyMask) {
@@ -53500,87 +53409,22 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         return members;
     }
 
-    function addDataCellVertical(result, rowIndex, map, key, formats, offset) {
-        var value, aggregate, columnKey, format, measuresCount = 0;
-
-        var start = rowIndex;
-
-        for (aggregate in map[key].aggregates) {
-            value = map[key].aggregates[aggregate];
-
-            format = formats[aggregate];
-
-            result[start] = {
-                ordinal: start,
-                value: value,
-                fmtValue: format ? kendo.format(format, value) : value
-            };
-            ++measuresCount;
-            start += offset;
-        }
-
-        var items = map[key].items;
-
-        for (columnKey in items) {
-            var index = items[columnKey].index * measuresCount;
-
-            index = start + index*offset;
-
-            for (aggregate in items[columnKey].aggregates) {
-                value = items[columnKey].aggregates[aggregate];
-
-                format = formats[aggregate];
-
-                result[index] = {
-                    ordinal: index,
-                    value: value,
-                    fmtValue: format ? kendo.format(format, value) : value
-                };
-                index += offset;
-            }
-        }
-    }
-
-    function addDataCell(result, rowIndex, map, key, formats) {
-        var value, aggregate, columnKey, format, measuresCount = 0;
-
-        for (aggregate in map[key].aggregates) {
-            value = map[key].aggregates[aggregate];
-
-            format = formats[aggregate];
-
-            result[result.length] = {
-                ordinal: rowIndex++,
-                value: value,
-                fmtValue: format ? kendo.format(format, value) : value
-            };
-            ++measuresCount;
-        }
-
-        var items = map[key].items;
-
-        for (columnKey in items) {
-            var index = items[columnKey].index * measuresCount;
-
-            for (aggregate in items[columnKey].aggregates) {
-                value = items[columnKey].aggregates[aggregate];
-
-                format = formats[aggregate];
-
-                result[result.length] = {
-                    ordinal: rowIndex + index++,
-                    value: value,
-                    fmtValue: format ? kendo.format(format, value) : value
-                };
-            }
-        }
-    }
-
-    function createAggregateGetter(m) {
-        var measureGetter = kendo.getter(m.field, true);
-        return function(data, state) {
-            return m.aggregate(measureGetter(data), state);
+    function addDataCell(result, rowIndex, map, key, format) {
+        result[result.length] = {
+            ordinal: rowIndex,
+            value: map[key].aggregates,
+            fmtValue: format ? kendo.format(format, map[key].aggregates) : map[key].aggregates
         };
+
+        var items = map[key].items;
+
+        for (var columnKey in items) {
+            result[result.length] = {
+                ordinal: rowIndex + items[columnKey].index + 1,
+                value: items[columnKey].aggregate,
+                fmtValue: format ? kendo.format(format, items[columnKey].aggregate) : items[columnKey].aggregate
+            };
+        }
     }
 
     var PivotCubeBuilder = Class.extend({
@@ -53610,25 +53454,48 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             return descriptors;
         },
 
-        _asTuples: function(map, descriptors, measureAggregators) {
-            measureAggregators = measureAggregators || [];
-
+        _asTuples: function(map, descriptors) {
             var dimensionsSchema = this.dimensions || [];
             var result = [];
             var root;
             var idx;
             var length;
-            var measureIdx;
-            var tuple;
-            var aggregatorsLength = measureAggregators.length || 1;
 
-            if (descriptors.length || measureAggregators.length) {
-                for (measureIdx = 0; measureIdx < aggregatorsLength; measureIdx++) {
+            if (descriptors.length) {
+                root = { members: [] };
 
-                    root = { members: [] };
+                for (idx = 0, length = descriptors.length; idx < length; idx++) {
+                    root.members[root.members.length] = {
+                        children: [],
+                        caption: (dimensionsSchema[descriptors[idx].name] || {}).caption || "All",
+                        name: descriptors[idx].name,
+                        levelName: descriptors[idx].name,
+                        levelNum: "0",
+                        hasChildren: true,
+                        parentName: undefined,
+                        hierarchy: descriptors[idx].name
+                    };
+                }
 
-                    for (idx = 0, length = descriptors.length; idx < length; idx++) {
-                        root.members[root.members.length] = {
+                result[result.length] = root;
+            }
+
+            for (var key in map) {
+                var tuple = { members: [] };
+                for (idx = 0, length = descriptors.length; idx < length; idx++) {
+                    if (map[key].parentName.indexOf(descriptors[idx].name) === 0) {
+                        tuple.members[tuple.members.length] = {
+                            children: [],
+                            caption: map[key].value,
+                            name: map[key].name,
+                            levelName: map[key].name,
+                            levelNum: 1,
+                            hasChildren: false,
+                            parentName: descriptors[idx].name,
+                            hierarchy: descriptors[idx].name
+                        };
+                    } else {
+                        tuple.members[tuple.members.length] = {
                             children: [],
                             caption: (dimensionsSchema[descriptors[idx].name] || {}).caption || "All",
                             name: descriptors[idx].name,
@@ -53639,82 +53506,20 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                             hierarchy: descriptors[idx].name
                         };
                     }
-
-                    if (aggregatorsLength > 1) {
-                        root.members[root.members.length] = {
-                            children: [],
-                            caption: (measureAggregators[measureIdx]).caption,
-                            name: measureAggregators[measureIdx].name,
-                            levelName: "MEASURES",
-                            levelNum: "0",
-                            hasChildren: false,
-                            parentName: undefined,
-                            hierarchy: "MEASURES"
-                        };
-                    }
-                    result[result.length] = root;
                 }
-            }
 
-            for (var key in map) {
-                for (measureIdx = 0; measureIdx < aggregatorsLength; measureIdx++) {
-                    tuple = { members: [] };
-                    for (idx = 0, length = descriptors.length; idx < length; idx++) {
-                        if (map[key].parentName.indexOf(descriptors[idx].name) === 0) {
-                            tuple.members[tuple.members.length] = {
-                                children: [],
-                                caption: map[key].value,
-                                name: map[key].name,
-                                levelName: map[key].name,
-                                levelNum: 1,
-                                hasChildren: false,
-                                parentName: descriptors[idx].name,
-                                hierarchy: descriptors[idx].name
-                            };
-                        } else {
-                            tuple.members[tuple.members.length] = {
-                                children: [],
-                                caption: (dimensionsSchema[descriptors[idx].name] || {}).caption || "All",
-                                name: descriptors[idx].name,
-                                levelName: descriptors[idx].name,
-                                levelNum: "0",
-                                hasChildren: true,
-                                parentName: undefined,
-                                hierarchy: descriptors[idx].name
-                            };
-                        }
-                    }
-
-                    if (aggregatorsLength > 1) {
-                        tuple.members[tuple.members.length] = {
-                            children: [],
-                            caption: measureAggregators[measureIdx].caption,
-                            name: measureAggregators[measureIdx].name,
-                            levelName: "MEASURES",
-                            levelNum: "0",
-                            hasChildren: true,
-                            parentName: undefined,
-                            hierarchy: "MEASURES"
-                        };
-                    }
-
-                    result[result.length] = tuple;
-                }
+                result[result.length] = tuple;
             }
 
             return result;
         },
 
-        _toDataArray: function(map, rowStartOffset, measures, offset, addFunc) {
-            var formats = {};
-
+        _toDataArray: function(map, columns, measures) {
+            var format;
             if (measures && measures.length) {
-                var descriptors = (this.measures || {});
-                for (var idx = 0; idx < measures.length; idx++) {
-                    var measure = descriptors[measures[idx]];
-                    if (measure.format) {
-                        formats[measures[idx]] = measure.format;
-                    }
+                var measure = (this.measures || {})[measures[0]];
+                if (measure.format) {
+                    format = measure.format;
                 }
             }
 
@@ -53722,15 +53527,18 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             var items;
             var rowIndex = 0;
 
-            addFunc(result, rowIndex, map, ROW_TOTAL_KEY, formats, rowStartOffset);
+            addDataCell(result, rowIndex, map, ROW_TOTAL_KEY, format);
+
+            rowIndex += columns.length;
 
             for (var key in map) {
                 if (key === ROW_TOTAL_KEY) {
                     continue;
                 }
 
-                rowIndex += offset;
-                addFunc(result, rowIndex, map, key, formats, rowStartOffset);
+                addDataCell(result, rowIndex, map, key, format);
+
+                rowIndex += columns.length;
             }
 
             return result;
@@ -53768,21 +53576,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             return false;
         },
 
-        _calculateAggregate: function(measureAggregators, dataItem, totalItem) {
-            var result = {};
-            var state;
-            var name;
-
-            for (var measureIdx = 0; measureIdx < measureAggregators.length; measureIdx++) {
-                name = measureAggregators[measureIdx].name;
-                state = totalItem.aggregates[name] || 0;
-                result[name] = measureAggregators[measureIdx].aggregator(dataItem, state);
-            }
-
-            return result;
-        },
-
-        _processColumns: function(measureAggregators, descriptors, getters, columns, dataItem, rowTotal, state, updateColumn) {
+        _processColumns: function(measureAggregator, descriptors, getters, columns, dataItem, rowTotal, state, updateColumn) {
             var value;
             var descriptor;
             var name;
@@ -53810,13 +53604,10 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     };
 
                     totalItem = rowTotal.items[name] || {
-                        aggregates: {}
+                        aggregate: 0
                     };
 
-                    rowTotal.items[name] = {
-                        index: column.index,
-                        aggregates: this._calculateAggregate(measureAggregators, dataItem, totalItem)
-                    };
+                    rowTotal.items[name] = { index: column.index, aggregate: measureAggregator(dataItem, totalItem.aggregate) };
 
                     if (updateColumn) {
                         if (!columns[name]) {
@@ -53828,34 +53619,20 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             }
         },
 
-        _measureAggregators: function(options) {
+        _measureAggregator: function(options) {
             var measureDescriptors = options.measures || [];
-            var measures = this.measures || {};
-            var aggregators = [];
-            var descriptor, measure, idx, length;
+            var measure = (this.measures || {})[measureDescriptors[0]];
+            var measureAggregator;
 
-            if (measureDescriptors.length) {
-                for (idx = 0, length = measureDescriptors.length; idx < length; idx++) {
-                    descriptor = measureDescriptors[idx];
-                    measure = measures[descriptor];
-
-                    if (measure) {
-                        aggregators.push({
-                            name: descriptor,
-                            caption: measure.caption,
-                            aggregator: createAggregateGetter(measure)
-                        });
-                    }
-                }
+            if (measure) {
+                var measureGetter = kendo.getter(measure.field, true);
+                measureAggregator = function(data, state) {
+                    return measure.aggregate(measureGetter(data), state);
+                };
             } else {
-                aggregators.push({
-                    name: "default",
-                    caption: "default",
-                    aggregator: function() { return 1; }
-                });
+                measureAggregator = function() { return 1; };
             }
-
-            return aggregators;
+            return measureAggregator;
         },
 
         _buildGetters: function(descriptors) {
@@ -53881,26 +53658,8 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             data = data || [];
             options = options || {};
 
-            var measures = options.measures || [];
-
-            var measuresRowAxis = options.measuresAxis === "rows";
-
-            var columnDescriptors = (measuresRowAxis ? options.rows : options.columns) || [];
-            var rowDescriptors = (!measuresRowAxis ? options.rows : options.columns) || [];
-
-            if (!columnDescriptors.length && rowDescriptors.length && (!measures.length || (measures.length && measuresRowAxis))) {
-                columnDescriptors = rowDescriptors;
-                rowDescriptors = [];
-                measuresRowAxis = false;
-            }
-
-            if (!columnDescriptors.length && !rowDescriptors.length) {
-                measuresRowAxis = false;
-            }
-
-            if (!columnDescriptors.length && measures.length) {
-                columnDescriptors = normalizeMembers(options.measures);
-            }
+            var columnDescriptors = options.columns || [];
+            var rowDescriptors = options.rows || [];
 
             var aggregatedData = {};
             var columns = {};
@@ -53909,7 +53668,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             var rowValue;
             var state = { columnIndex: 0 };
 
-            var measureAggregators = this._measureAggregators(options);
+            var measureAggregator = this._measureAggregator(options);
             var columnGetters = this._buildGetters(columnDescriptors);
             var rowGetters = this._buildGetters(rowDescriptors);
 
@@ -53923,12 +53682,12 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 for (var idx = 0, length = data.length; idx < length; idx++) {
                     var rowTotal = aggregatedData[ROW_TOTAL_KEY] || {
                         items: {},
-                        aggregates: {}
+                        aggregates: 0
                     };
 
-                    this._processColumns(measureAggregators, columnDescriptors, columnGetters, columns, data[idx], rowTotal, state, !hasExpandedRows);
+                    this._processColumns(measureAggregator, columnDescriptors, columnGetters, columns, data[idx], rowTotal, state, !hasExpandedRows);
 
-                    rowTotal.aggregates = this._calculateAggregate(measureAggregators, data[idx], rowTotal);
+                    rowTotal.aggregates = measureAggregator(data[idx], rowTotal.aggregates);
                     aggregatedData[ROW_TOTAL_KEY] = rowTotal;
 
                     for (var rowIdx = 0, rowLength = rowDescriptors.length; rowIdx < rowLength; rowIdx++) {
@@ -53949,12 +53708,12 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
                             var value = aggregatedData[rowValue] || {
                                 items: {},
-                                aggregates: {}
+                                aggregates: 0
                             };
 
-                            this._processColumns(measureAggregators, columnDescriptors, columnGetters, columns, data[idx], value, state, true);
+                            this._processColumns(measureAggregator, columnDescriptors, columnGetters, columns, data[idx], value, state, true);
 
-                            value.aggregates = this._calculateAggregate(measureAggregators, data[idx], value);
+                            value.aggregates = measureAggregator(data[idx], value.aggregates);
                             aggregatedData[rowValue] = value;
                         }
                     }
@@ -53962,25 +53721,9 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             }
 
             if (processed && data.length) {
-                if (measureAggregators.length > 1 && (!options.columns || !options.columns.length)) {
-                    columnDescriptors = [];
-                }
-
-                columns = this._asTuples(columns, columnDescriptors, measureAggregators);
-                rows = this._asTuples(rows, rowDescriptors, []);
-
-                var offset = columns.length;
-
-                if (measuresRowAxis) {
-                    offset = 1;
-
-                    var tmp = columns;
-                    columns = rows;
-                    rows = tmp;
-                }
-
-                aggregatedData = this._toDataArray(aggregatedData, columns.length, options.measures, offset, measuresRowAxis ? addDataCellVertical : addDataCell);
-
+                columns = this._asTuples(columns, columnDescriptors);
+                rows = this._asTuples(rows, rowDescriptors);
+                aggregatedData = this._toDataArray(aggregatedData, columns, options.measures);
             } else {
                 aggregatedData = columns = rows = [];
             }
@@ -54553,9 +54296,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             for (idx = 0, length = data.length; idx < length; idx++) {
                cell = data[idx];
-               if (cell) {
-                   result[cell.ordinal] = cell;
-               }
+               result[cell.ordinal] = cell;
             }
 
             return result;
@@ -55845,9 +55586,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     filter: ">:not(.k-empty)",
                     hint: that.options.hint,
                     cursor: "move",
-                    start: function(e) {
-                        e.item.focus().blur();
-                    },
                     change: function(e) {
                         var name = e.item.attr(kendo.attr("name"));
 
@@ -56186,7 +55924,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         },
 
         _createSettingTarget: function(element, options) {
-            var template = '<span tabindex="0" class="k-button" data-' + kendo.ns + 'name="${data.name || data}">${data.name || data}';
+            var template = '<span class="k-button" data-' + kendo.ns + 'name="${data.name || data}">${data.name || data}';
             var icons = "";
 
             if (options.filterable) {
@@ -56312,7 +56050,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         },
 
         _setContentWidth: function() {
-            var contentTable = this.content.find("table");
+            var contentTable = this.content.children("table");
             var contentWidth = this.content.width();
 
             var rowLength = contentTable.children("colgroup").children().length;
@@ -56526,7 +56264,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 this._buildRows(root, 0);
                 this._normalize();
             } else {
-                this.rows.push(element("tr", null, [ element("th", null, [ htmlNode("&nbsp;") ]) ]));
+                this.rows.push(element("tr", null, [ element("th", null) ]));
             }
 
             return element("tbody", null, this.rows);
@@ -56546,7 +56284,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             for (; rowIdx < rowsLength; rowIdx++) {
                 row = rows[rowIdx];
 
-                if (row.rowSpan === 1) {
+                if (row.rowspan === 1) {
                     continue;
                 }
 
@@ -56559,7 +56297,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     cell = cells[cellIdx];
 
                     if (cell.tupleAll) {
-                        cell.attr.rowSpan = row.rowSpan;
+                        cell.attr.rowspan = row.rowspan;
                     }
                 }
             }
@@ -56587,7 +56325,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             if (length) {
                 for (; idx < length; idx++) {
-                    rowLength += cells[idx].attr.colSpan || 1;
+                    rowLength += cells[idx].attr.colspan || 1;
                 }
             }
 
@@ -56612,8 +56350,8 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 row = element("tr", null, []);
 
                 row.parentMember = parentMember;
-                row.colSpan = 0;
-                row.rowSpan = 1;
+                row.colspan = 0;
+                row.rowspan = 1;
 
                 map[rowKey] = row;
                 parentRow = map[rootName + (Number(levelNum) - 1)];
@@ -56634,7 +56372,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
                 if (!row.parentMember || row.parentMember !== parentMember) {
                     row.parentMember = parentMember;
-                    row.colSpan = 0;
+                    row.colspan = 0;
                 }
             }
 
@@ -56682,7 +56420,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             var path;
 
             var idx = 0;
-            var colSpan;
+            var colspan;
             var metadata;
 
             if (member.measure) {
@@ -56722,7 +56460,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             cell = this._cell((row.notFirst ? " k-first" : ""), cellChildren);
 
             row.children.push(cell);
-            row.colSpan += 1;
+            row.colspan += 1;
 
             if (childrenLength) {
                 allCell = this._cell(" k-alt", [this._content(member, tuple)]);
@@ -56732,40 +56470,40 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     childRow = this._buildRows(children[idx], memberIdx, member);
                 }
 
-                colSpan = childRow.colSpan;
-                cell.attr.colSpan = colSpan;
+                colspan = childRow.colspan;
+                cell.attr.colspan = colspan;
 
-                metadata.children = colSpan;
+                metadata.children = colspan;
                 metadata.members = 1;
 
-                row.colSpan += colSpan;
-                row.rowSpan = childRow.rowSpan + 1;
+                row.colspan += colspan;
+                row.rowspan = childRow.rowspan + 1;
 
                 if (nextMember) {
                     if (nextMember.measure) {
-                        colSpan = this._measures(nextMember.children, tuple, " k-alt");
+                        colspan = this._measures(nextMember.children, tuple, " k-alt");
                     } else {
-                        colSpan = this._buildRows(tuple, memberIdx + 1).colSpan;
+                        colspan = this._buildRows(tuple, memberIdx + 1).colspan;
                     }
 
-                    allCell.attr.colSpan = colSpan;
-                    colSpan -= 1;
+                    allCell.attr.colspan = colspan;
+                    colspan -= 1;
 
-                    metadata.members += colSpan;
-                    row.colSpan += colSpan;
+                    metadata.members += colspan;
+                    row.colspan += colspan;
                 }
             } else if (nextMember) {
                 if (nextMember.measure) {
-                    colSpan = this._measures(nextMember.children, tuple);
+                    colspan = this._measures(nextMember.children, tuple);
                 } else {
-                    colSpan = this._buildRows(tuple, memberIdx + 1).colSpan;
+                    colspan = this._buildRows(tuple, memberIdx + 1).colspan;
                 }
 
-                metadata.members = colSpan;
+                metadata.members = colspan;
 
-                if (colSpan > 1) {
-                    cell.attr.colSpan = colSpan;
-                    row.colSpan += colSpan - 1;
+                if (colspan > 1) {
+                    cell.attr.colspan = colspan;
+                    row.colspan += colspan - 1;
                 }
             }
 
@@ -56826,7 +56564,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 this._buildRows(root, 0);
                 this._normalize();
             } else {
-                this.rows.push(element("tr", null, [ element("td", null, [ htmlNode("&nbsp;") ]) ]));
+                this.rows.push(element("tr", null, [ element("td", null) ]));
             }
 
             return element("tbody", null, this.rows);
@@ -56844,7 +56582,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             var row;
             var cell;
-            var maxcolSpan;
+            var maxColspan;
             var map = this.map;
             var allRow;
 
@@ -56852,11 +56590,11 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 row = rows[rowIdx];
 
                 for (memberIdx = 0; memberIdx < membersLength; memberIdx++) {
-                    maxcolSpan = this[members[memberIdx].name];
-                    cell = row.colSpan["dim" + memberIdx];
+                    maxColspan = this[members[memberIdx].name];
+                    cell = row.colspan["dim" + memberIdx];
 
-                    if (cell && cell.levelNum < maxcolSpan) {
-                        cell.attr.colSpan = (maxcolSpan - cell.levelNum) + 1;
+                    if (cell && cell.levelNum < maxColspan) {
+                        cell.attr.colspan = (maxColspan - cell.levelNum) + 1;
                     }
                 }
             }
@@ -56875,8 +56613,8 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
         _row: function(children) {
             var row = element("tr", null, children);
-            row.rowSpan = 1;
-            row.colSpan = {};
+            row.rowspan = 1;
+            row.colspan = {};
 
             this.rows.push(row);
 
@@ -56928,7 +56666,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 attr = { className: row.allCell ? "k-grid-footer" : "" };
                 row.children.push(element("td", attr, [ this._content(children[0], tuple) ]));
 
-                row.rowSpan = childrenLength;
+                row.rowspan = childrenLength;
 
                 for (idx = 1; idx < childrenLength; idx++) {
                     this._row([ element("td", attr, [ this._content(children[idx], tuple) ]) ]);
@@ -56968,7 +56706,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             cell.levelNum = levelNum;
 
             row.children.push(cell);
-            row.colSpan["dim" + memberIdx] = cell;
+            row.colspan["dim" + memberIdx] = cell;
 
             if (!this[rootName] || this[rootName] < levelNum) {
                 this[rootName] = levelNum;
@@ -56982,41 +56720,41 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     childRow = this._buildRows(children[idx], memberIdx);
 
                     if (row !== childRow) {
-                        row.rowSpan += childRow.rowSpan;
+                        row.rowspan += childRow.rowspan;
                     }
                 }
 
-                if (row.rowSpan > 1) {
-                    cell.attr.rowSpan = row.rowSpan;
+                if (row.rowspan > 1) {
+                    cell.attr.rowspan = row.rowspan;
                 }
 
-                metadata.children = row.rowSpan;
+                metadata.children = row.rowspan;
 
                 allCell = element("td", { className: "k-grid-footer" }, [this._content(member, tuple)]);
                 allCell.levelNum = levelNum;
 
                 allRow = this._row([ allCell ]);
-                allRow.colSpan["dim" + memberIdx] = allCell;
+                allRow.colspan["dim" + memberIdx] = allCell;
                 allRow.allCell = true;
 
                 map[tuplePath + member.name + "all"] = allRow;
 
                 if (nextMember) {
                     childRow = this._buildRows(tuple, memberIdx + 1);
-                    allCell.attr.rowSpan = childRow.rowSpan;
+                    allCell.attr.rowspan = childRow.rowspan;
                 }
 
-                row.rowSpan += allRow.rowSpan;
+                row.rowspan += allRow.rowspan;
 
-                metadata.members = allRow.rowSpan;
+                metadata.members = allRow.rowspan;
 
             } else if (nextMember) {
                 row.hasChild = false;
                 this._buildRows(tuple, memberIdx + 1);
 
-                (allCell || cell).attr.rowSpan = row.rowSpan;
+                (allCell || cell).attr.rowspan = row.rowspan;
 
-                metadata.members = row.rowSpan;
+                metadata.members = row.rowspan;
             }
 
             if (metadata.maxChildren < metadata.children) {
@@ -57085,7 +56823,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
                 this._buildRows();
             } else {
-                this.rows.push(element("tr", null, [ element("td", null, [ htmlNode("&nbsp;") ]) ]));
+                this.rows.push(element("tr", null, [ element("td", null, [ text("") ]) ]));
             }
 
             return element("tbody", null, this.rows);
@@ -57428,7 +57166,9 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             that._tabindex();
 
-            that.root.attr("role", "tree");
+            if (!that.wrapper.filter("[role=tree]").length) {
+                that.wrapper.attr("role", "tree");
+            }
 
             that._dataSource(inferred);
 
@@ -57635,13 +57375,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     return result;
                 },
                 groupAttributes: function(group) {
-                    var attributes = "";
-
-                    if (!group.firstLevel) {
-                        attributes = "role='group'";
-                    }
-
-                    return attributes + (group.expanded !== true ? " style='display:none'" : "");
+                    return group.expanded !== true ? " style='display:none'" : "";
                 },
                 groupCssClass: function(group) {
                     var cssClass = "k-group";
@@ -57659,7 +57393,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     "</div>"
                 ),
                 group: templateNoWith(
-                    "<ul class='#= data.r.groupCssClass(data.group) #'#= data.r.groupAttributes(data.group) #>" +
+                    "<ul class='#= data.r.groupCssClass(data.group) #'#= data.r.groupAttributes(data.group) # role='group'>" +
                         "#= data.renderItems(data) #" +
                     "</ul>"
                 ),
@@ -57700,9 +57434,9 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 ),
                 item: templateNoWith(
                     "# var item = data.item, r = data.r; #" +
-                    "<li role='treeitem' class='#= r.wrapperCssClass(data.group, item) #' " +
-                        kendo.attr("uid") + "='#= item.uid #' " +
-                        "aria-selected='#= item.selected ? \"true\" : \"false \" #' " +
+                    "<li role='treeitem' class='#= r.wrapperCssClass(data.group, item) #'" +
+                        " " + kendo.attr("uid") + "='#= item.uid #'" +
+                        "#=item.selected ? \"aria-selected='true'\" : ''#" +
                         "#=item.enabled === false ? \"aria-disabled='true'\" : ''#" +
                     ">" +
                         "#= r.itemElement(data) #" +
@@ -57730,10 +57464,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             this._dataSource();
 
             this.dataSource.fetch();
-
-            if (options.checkboxes && options.checkboxes.checkChildren) {
-                this.updateIndeterminate();
-            }
         },
 
         _bindDataSource: function() {
@@ -58543,7 +58273,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                             }
 
                             isCollapsed = true;
-                            node.attr(ARIASELECTED, false)
+                            node.removeAttr(ARIASELECTED)
                                 .attr(ARIADISABLED, true);
                         }
 
@@ -58600,9 +58330,20 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 this._progress(parentNode, false);
             }
 
-            if (checkChildren && action != "remove" && node && node.checked) {
+            if (checkChildren && action != "remove") {
+                var bubble = false;
+
                 for (i = 0; i < items.length; i++) {
-                    items[i].checked = true;
+                    if ("checked" in items[i]) {
+                        bubble = true;
+                        break;
+                    }
+                }
+
+                if (!bubble && node && node.checked) {
+                    for (i = 0; i < items.length; i++) {
+                        items[i].checked = true;
+                    }
                 }
             }
 
@@ -58643,21 +58384,26 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
                         this.root
                             .attr("class", group.attr("class"))
+                            .attr("role", group.attr("role"))
                             .html(group.html());
                     } else {
                         this.root = this.wrapper.html(groupHtml).children("ul");
                     }
 
-                    this.root.attr("role", "tree");
-
                     this._angularItems("compile");
                 }
             }
 
+            // expand any expanded items
             for (i = 0; i < items.length; i++) {
                 if (!loadOnDemand || items[i].expanded) {
                     items[i].load();
                 }
+            }
+
+            // update indeterminate state when appending / moving items
+            if (checkChildren) {
+                this.updateIndeterminate();
             }
 
             this.trigger(DATABOUND, {
@@ -59881,9 +59627,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         }
     }
 
-    function removeDuplicates(dataSelector, dataTextField) {
-        var getter = kendo.getter(dataTextField, true);
-
+    function removeDuplicates (dataSelector, dataTextField) {
         return function(e) {
             var items = dataSelector(e),
                 result = [],
@@ -59892,8 +59636,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             while (index < items.length) {
                 var item = items[index++],
-                    text = getter(item);
-
+                    text = item[dataTextField];
                 if(!seen.hasOwnProperty(text)){
                     result.push(item);
                     seen[text] = true;
@@ -60073,11 +59816,11 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     this.suggestDataSource =
                         DataSource.create(suggestDataSource);
 
-            }
 
-            if (!options.customDataSource) {
-                suggestDataSource._pageSize = undefined;
-                suggestDataSource.reader.data = removeDuplicates(suggestDataSource.reader.data, this.options.field);
+                if (!options.customDataSource) {
+                    suggestDataSource._pageSize = undefined;
+                    suggestDataSource.reader.data = removeDuplicates(suggestDataSource.reader.data, this.options.field);
+                }
             }
 
             this.suggestDataSource = suggestDataSource;
@@ -61997,20 +61740,9 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             that.wrapper.children(".k-tabstrip-items")
                 .on(CLICK + NS, ".k-state-disabled .k-link", false)
-                .on(CLICK + NS, " > " + NAVIGATABLEITEMS, function (e) {
-                    var wr = that.wrapper[0];
-                    if (wr !== document.activeElement) {
-                        var msie = kendo.support.browser.msie;
-                        if (msie) {
-                            try {
-                                // does not scroll to the active element
-                                wr.setActive();
-                            } catch (j) {
-                                wr.focus();
-                            }
-                        } else {
-                            wr.focus();
-                        }
+                .on(CLICK + NS, " > " + NAVIGATABLEITEMS, function(e) {
+                    if (that.wrapper[0] !== document.activeElement) {
+                        that.wrapper.focus();
                     }
 
                     if (that._click($(e.currentTarget))) {
@@ -62430,9 +62162,9 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         },
 
         remove: function (elements) {
-            var that = this;
-            var type = typeof elements;
-            var contents;
+            var that = this,
+                type = typeof elements,
+                contents = $();
 
             if (type === "string") {
                 elements = that.tabGroup.find(elements);
@@ -62440,12 +62172,9 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 elements = that.tabGroup.children().eq(elements);
             }
 
-            contents = elements.map(function () {
-                var content = that.contentElement($(this).index());
-                kendo.destroy(content);
-                return content;
+            elements.each(function () {
+                contents.push(that.contentElement($(this).index()));
             });
-
             elements.remove();
             contents.remove();
 
@@ -63939,7 +63668,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         BUTTON_GROUP = "k-button-group",
         SPLIT_BUTTON = "k-split-button",
         SEPARATOR = "k-separator",
-        POPUP = "k-popup",
 
         RESIZABLE_TOOLBAR = "k-toolbar-resizable",
         STATE_ACTIVE = "k-state-active",
@@ -64625,7 +64353,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             },
 
             _toggleOverflowAnchor: function() {
-                if (this.popup.element.children(":not(." + OVERFLOW_HIDDEN + ", ." + POPUP + ")").length > 0) {
+                if (this.popup.element.children(":not(." + OVERFLOW_HIDDEN + ")").length > 0) {
                     this.overflowAnchor.css({
                         visibility: "visible",
                         width: ""
@@ -64656,7 +64384,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     target = $(e.target).closest("." + OVERFLOW_BUTTON, that.popup.container);
                 }
 
-                isDisabled = target.hasClass(OVERFLOW_BUTTON) ? target.parent("li").hasClass(STATE_DISABLED) : target.hasClass(STATE_DISABLED);
+                isDisabled = target.hasClass(STATE_DISABLED);
 
                 if (isDisabled) {
                     return;
@@ -64704,10 +64432,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                     isDefaultPrevented;
 
                 e.preventDefault();
-
-                if (splitButton.hasClass(STATE_DISABLED)) {
-                    return;
-                }
 
                 if (popup.element.is(":visible")) {
                     isDefaultPrevented = this.trigger(CLOSE, { target: splitButton });
@@ -78515,12 +78239,10 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                             finishEdit();
                             break;
                         case keys.ESC:
-                            if (that.editable) {
-                                cell = that._editableContainer;
-                                model = that._modelFromElement(cell);
-                                if (!that.trigger("cancel", { model: model, cell: cell })) {
-                                    that._closeCell(true);
-                                }
+                            cell = that._editableContainer;
+                            model = that._modelFromElement(cell);
+                            if (!that.trigger("cancel", { model: model, cell: cell })) {
+                                that._closeCell(true);
                             }
                             break;
                     }
@@ -81897,17 +81619,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         destroy: function() {
             Widget.fn.destroy.call(this);
 
-            if (this.dataSource) {
-                this.dataSource.unbind("change", this._refreshHandler);
-                this.dataSource.unbind("progress", this._progressHandler);
-                this.dataSource.unbind("error", this._errorHandler);
-            }
-
-            if (this.dependencies) {
-                this.dependencies.unbind("change", this._dependencyRefreshHandler);
-                this.dependencies.unbind("error", this._dependencyErrorHandler);
-            }
-
             if (this.timeline) {
                 this.timeline.unbind();
                 this.timeline.destroy();
@@ -83201,12 +82912,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
         kNgDelay    : true
     };
 
-    var ignoredOwnProperties = {
-        // XXX: other names to ignore here?
-        name    : true,
-        title   : true
-    };
-
     function addOption(scope, options, name, value) {
         options[name] = angular.copy(scope.$eval(value));
         if (options[name] === undefined && value.match(/^\w*$/)) {
@@ -83246,7 +82951,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
 
             if (widgetOptions.hasOwnProperty(dataName)) {
                 addOption(scope, options, dataName, value);
-            } else if (widgetOptions.hasOwnProperty(name) && !ignoredOwnProperties[name]) {
+            } else if (widgetOptions.hasOwnProperty(name) && name != "name") { // `name` must be forbidden. XXX: other names to ignore here?
                 addOption(scope, options, name, value);
             } else if (!ignoredAttributes[name]) {
                 var match = name.match(/^k(On)?([A-Z].*)/);
@@ -83387,9 +83092,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                                     var _wrapper = $(widget.wrapper)[0];
                                     var _element = $(widget.element)[0];
                                     widget.destroy();
-                                    if (dropDestroyHandler) {
-                                        dropDestroyHandler();
-                                    }
                                     widget = null;
                                     if (_wrapper && _element) {
                                         _wrapper.parentNode.replaceChild(_element, _wrapper);
@@ -83405,7 +83107,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                         var widget = createWidget(scope, element, attrs, role, origAttr);
                         setupBindings();
 
-                        var dropDestroyHandler;
+                        var prev_destroy = null;
                         function setupBindings() {
 
                             var isFormField = /^(input|select|textarea)$/i.test(element[0].tagName);
@@ -83419,8 +83121,11 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                                 return isFormField ? formValue(element) : widget.value();
                             }
 
-                            dropDestroyHandler = scope.$on("$destroy", function() {
-                                dropDestroyHandler();
+                            // Cleanup after ourselves
+                            if (prev_destroy) {
+                                prev_destroy();
+                            }
+                            prev_destroy = scope.$on("$destroy", function() {
                                 if (widget) {
                                     if (widget.element) {
                                         widget = kendoWidgetInstance(widget.element);
@@ -83511,28 +83216,22 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                                 var getter = $parse(attrs.kNgModel);
                                 var setter = getter.assign;
                                 var updating = false;
-                                widget.$angular_setLogicValue(getter(scope));
+                                widget.value(getter(scope));
 
                                 // keep in sync
                                 scope.$watch(attrs.kNgModel, function(newValue, oldValue){
-                                    if (newValue === undefined) {
-                                        // because widget's value() method usually checks if the new value is undefined,
-                                        // in which case it returns the current value rather than clearing the field.
-                                        // https://github.com/telerik/kendo-ui-core/issues/299
-                                        newValue = null;
-                                    }
                                     if (updating) {
                                         return;
                                     }
                                     if (newValue === oldValue) {
                                         return;
                                     }
-                                    widget.$angular_setLogicValue(newValue);
+                                    widget.value(newValue);
                                 });
                                 widget.first("change", function(){
                                     updating = true;
                                     scope.$apply(function(){
-                                        setter(scope, widget.$angular_getLogicValue());
+                                        setter(scope, widget.value());
                                     });
                                     updating = false;
                                 });
@@ -83565,7 +83264,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                                         currClassList.forEach(function(cls){
                                             if (prevClassList.indexOf(cls) < 0) {
                                                 w.classList.add(cls);
-                                                if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
+                                                if (widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
                                                     widget.input[0].classList.add(cls);
                                                 }
                                             }
@@ -83573,7 +83272,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                                         prevClassList.forEach(function(cls){
                                             if (currClassList.indexOf(cls) < 0) {
                                                 w.classList.remove(cls);
-                                                if (kendo.ui.ComboBox && widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
+                                                if (widget instanceof kendo.ui.ComboBox) { // https://github.com/kendo-labs/angular-kendo/issues/356
                                                     widget.input[0].classList.remove(cls);
                                                 }
                                             }
@@ -83719,10 +83418,10 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
             if (isDigesting) {
                 func();
             } else {
-                root.$apply(func);
+                scope.$apply(func);
             }
         } else if (!isDigesting) {
-            root.$digest();
+            scope.$digest();
         }
     }
 
@@ -83811,7 +83510,7 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                       case "cleanup":
                         angular.forEach(elements, function(el){
                             var itemScope = angular.element(el).scope();
-                            if (itemScope && itemScope !== scope && itemScope.$$kendoScope) {
+                            if (itemScope && itemScope !== scope) {
                                 destroyScope(itemScope, el);
                             }
                         });
@@ -83826,7 +83525,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                                 var vars = data && data[i];
                                 if (vars !== undefined) {
                                     itemScope = $.extend(scope.$new(), vars);
-                                    itemScope.$$kendoScope = true;
                                 }
                             }
 
@@ -83838,72 +83536,6 @@ registerTool("deleteColumn", new TableModificationTool({ type: "column", action:
                 }
             });
         }
-    });
-
-    defadvice("ui.Widget", "$angular_getLogicValue", function(){
-        return this.self.value();
-    });
-
-    defadvice("ui.Widget", "$angular_setLogicValue", function(val){
-        this.self.value(val);
-    });
-
-    defadvice("ui.Select", "$angular_getLogicValue", function(){
-        var item = this.self.dataItem();
-        return item ? item.toJSON() : null;
-    });
-
-    defadvice("ui.Select", "$angular_setLogicValue", function(orig){
-        var self = this.self;
-        var val = orig != null ? orig[self.options.dataValueField || self.options.dataTextField] : null;
-        self.value(val);
-    });
-
-    defadvice("ui.MultiSelect", "$angular_getLogicValue", function(){
-        return $.map(this.self.dataItems(), function(item){
-            return item.toJSON();
-        });
-    });
-
-    defadvice("ui.MultiSelect", "$angular_setLogicValue", function(orig){
-        if (orig == null) {
-            orig = [];
-        }
-        var self = this.self;
-        var val = $.map(orig, function(item){
-            return item[self.options.dataValueField];
-        });
-        self.value(val);
-    });
-
-    defadvice("ui.AutoComplete", "$angular_getLogicValue", function(){
-        var options = this.self.options;
-
-        var values = this.self.value().split(options.separator);
-        var data = this.self.dataSource.data();
-        var dataItems = [];
-        for (var idx = 0, length = data.length; idx < length; idx++) {
-            var item = data[idx];
-            var dataValue = options.dataTextField ? item[options.dataTextField] : item;
-            for (var j = 0; j < values.length; j++) {
-                if (dataValue === values[j]) {
-                    dataItems.push(item.toJSON());
-                    break;
-                }
-            }
-        }
-        return dataItems;
-    });
-
-    defadvice("ui.AutoComplete", "$angular_setLogicValue", function(orig){
-        if (orig == null) {
-            orig = [];
-        }
-        var self = this.self;
-        var val = $.map(orig, function(item){
-            return item[self.options.dataTextField];
-        });
-        self.value(val);
     });
 
     // All event handlers that are strings are compiled the Angular way.

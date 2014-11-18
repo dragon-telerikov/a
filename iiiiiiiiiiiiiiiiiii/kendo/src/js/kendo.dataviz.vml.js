@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -807,7 +807,7 @@
                 clipRect.template = VMLClipRect.template = renderTemplate(
                     "<#= d.tagName # #= d.renderId() #" +
                         "style='position:absolute;" +
-                        "width:#= d.box.width() + d.box.x1 #px; height:#= d.box.height() + d.box.y1 #px; " +
+                        "width:#= d.box.width() #px; height:#= d.box.height() + d.box.y1#px; " +
                         "top:0px; " +
                         "left:0px; " +
                         "clip:#= d._renderClip() #;' >" +

@@ -2259,6 +2259,39 @@ declare module kendo.ui {
     }
 
 
+    class Validator extends kendo.ui.Widget {
+        static fn: Validator;
+        static extend(proto: Object): Validator;
+
+        element: JQuery;
+        wrapper: JQuery;
+        constructor(element: Element, options?: ValidatorOptions);
+        options: ValidatorOptions;
+        errors(): any;
+        hideMessages(): void;
+        validate(): boolean;
+        validateInput(input: Element): boolean;
+        validateInput(input: JQuery): boolean;
+    }
+
+    interface ValidatorOptions {
+        name?: string;
+        errorTemplate?: string;
+        messages?: any;
+        rules?: any;
+        validateOnBlur?: boolean;
+        validate?(e: ValidatorValidateEvent): void;
+    }
+    interface ValidatorEvent {
+        sender: Validator;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+    interface ValidatorValidateEvent extends ValidatorEvent {
+    }
+
+
 }
 
 interface HTMLElement {
@@ -2366,5 +2399,9 @@ interface JQuery {
     kendoTouch(): JQuery;
     kendoTouch(options: kendo.ui.TouchOptions): JQuery;
     data(key: "kendoTouch") : kendo.ui.Touch;
+
+    kendoValidator(): JQuery;
+    kendoValidator(options: kendo.ui.ValidatorOptions): JQuery;
+    data(key: "kendoValidator") : kendo.ui.Validator;
 
 }

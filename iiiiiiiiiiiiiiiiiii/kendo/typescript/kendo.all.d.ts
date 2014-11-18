@@ -1374,6 +1374,9 @@ declare module kendo.dataviz.ui {
 }
 
 declare module kendo.dataviz.map {
+    class Location {
+    }
+
     class Marker {
     }
 
@@ -1391,204 +1394,6 @@ declare module kendo.dataviz.drawing {
     }
 }
 
-declare module kendo.dataviz.geometry {
-    class Arc extends Observable {
-        options: ArcOptions;
-        bbox(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Rect;
-        getAnticlockwise(): boolean;
-        getCenter(): kendo.dataviz.geometry.Point;
-        getEndAngle(): number;
-        getRadiusX(): number;
-        getRadiusY(): number;
-        getStartAngle(): number;
-        pointAt(angle: number): kendo.dataviz.geometry.Point;
-        setAnticlockwise(value: boolean): kendo.dataviz.geometry.Arc;
-        setCenter(value: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Arc;
-        setEndAngle(value: number): kendo.dataviz.geometry.Arc;
-        setRadiusX(value: number): kendo.dataviz.geometry.Arc;
-        setRadiusY(value: number): kendo.dataviz.geometry.Arc;
-        setStartAngle(value: number): kendo.dataviz.geometry.Arc;
-        anticlockwise: boolean;
-        center: kendo.dataviz.geometry.Point;
-        endAngle: number;
-        radiusX: number;
-        radiusY: number;
-        startAngle: number;
-    }
-
-    interface ArcOptions {
-        name?: string;
-    }
-    interface ArcEvent {
-        sender: Arc;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-    class Circle extends Observable {
-        options: CircleOptions;
-        bbox(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Rect;
-        clone(): kendo.dataviz.geometry.Circle;
-        equals(other: kendo.dataviz.geometry.Circle): boolean;
-        getCenter(): kendo.dataviz.geometry.Point;
-        getRadius(): number;
-        pointAt(angle: number): kendo.dataviz.geometry.Point;
-        setCenter(value: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Point;
-        setCenter(value: any): kendo.dataviz.geometry.Point;
-        setRadius(value: number): kendo.dataviz.geometry.Circle;
-        center: kendo.dataviz.geometry.Point;
-        radius: number;
-    }
-
-    interface CircleOptions {
-        name?: string;
-    }
-    interface CircleEvent {
-        sender: Circle;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-    class Matrix extends Observable {
-        options: MatrixOptions;
-        clone(): kendo.dataviz.geometry.Matrix;
-        equals(other: kendo.dataviz.geometry.Matrix): boolean;
-        round(digits: number): kendo.dataviz.geometry.Matrix;
-        multiplyCopy(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Matrix;
-        toArray(digits: number): any;
-        toString(digits: number, separator: string): string;
-        a: number;
-        b: number;
-        c: number;
-        d: number;
-        e: number;
-        f: number;
-    }
-
-    interface MatrixOptions {
-        name?: string;
-    }
-    interface MatrixEvent {
-        sender: Matrix;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-    class Point extends Observable {
-        options: PointOptions;
-        clone(): kendo.dataviz.geometry.Point;
-        distanceTo(point: kendo.dataviz.geometry.Point): number;
-        equals(other: kendo.dataviz.geometry.Point): boolean;
-        getX(): number;
-        getY(): number;
-        move(x: number, y: number): kendo.dataviz.geometry.Point;
-        rotate(angle: number, center: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Point;
-        rotate(angle: number, center: any): kendo.dataviz.geometry.Point;
-        round(digits: number): kendo.dataviz.geometry.Point;
-        scale(scaleX: number, scaleY: number): kendo.dataviz.geometry.Point;
-        scaleCopy(scaleX: number, scaleY: number): kendo.dataviz.geometry.Point;
-        setX(value: number): kendo.dataviz.geometry.Point;
-        setY(value: number): kendo.dataviz.geometry.Point;
-        toArray(digits: number): any;
-        toString(digits: number, separator: string): string;
-        transform(tansformation: kendo.dataviz.geometry.Transformation): kendo.dataviz.geometry.Point;
-        transformCopy(tansformation: kendo.dataviz.geometry.Transformation): kendo.dataviz.geometry.Point;
-        translate(dx: number, dy: number): kendo.dataviz.geometry.Point;
-        translateWith(vector: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Point;
-        translateWith(vector: any): kendo.dataviz.geometry.Point;
-        x: number;
-        y: number;
-    }
-
-    interface PointOptions {
-        name?: string;
-    }
-    interface PointEvent {
-        sender: Point;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-    class Rect extends Observable {
-        options: RectOptions;
-        bbox(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Rect;
-        bottomLeft(): kendo.dataviz.geometry.Point;
-        bottomRight(): kendo.dataviz.geometry.Point;
-        center(): kendo.dataviz.geometry.Point;
-        clone(): kendo.dataviz.geometry.Rect;
-        equals(other: kendo.dataviz.geometry.Rect): boolean;
-        getOrigin(): kendo.dataviz.geometry.Point;
-        getSize(): kendo.dataviz.geometry.Size;
-        height(): number;
-        setOrigin(value: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Rect;
-        setOrigin(value: any): kendo.dataviz.geometry.Rect;
-        setSize(value: kendo.dataviz.geometry.Size): kendo.dataviz.geometry.Rect;
-        setSize(value: any): kendo.dataviz.geometry.Rect;
-        topLeft(): kendo.dataviz.geometry.Point;
-        topRight(): kendo.dataviz.geometry.Point;
-        width(): number;
-        origin: kendo.dataviz.geometry.Point;
-        size: kendo.dataviz.geometry.Size;
-    }
-
-    interface RectOptions {
-        name?: string;
-    }
-    interface RectEvent {
-        sender: Rect;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-    class Size extends Observable {
-        options: SizeOptions;
-        clone(): kendo.dataviz.geometry.Size;
-        equals(other: kendo.dataviz.geometry.Size): boolean;
-        getWidth(): number;
-        getHeight(): number;
-        setWidth(value: number): kendo.dataviz.geometry.Size;
-        setHeight(value: number): kendo.dataviz.geometry.Size;
-        width: number;
-        height: number;
-    }
-
-    interface SizeOptions {
-        name?: string;
-    }
-    interface SizeEvent {
-        sender: Size;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-    class Transformation extends Observable {
-        options: TransformationOptions;
-        clone(): kendo.dataviz.geometry.Transformation;
-        equals(other: kendo.dataviz.geometry.Transformation): boolean;
-        matrix(): kendo.dataviz.geometry.Matrix;
-        multiply(transformation: kendo.dataviz.geometry.Transformation): kendo.dataviz.geometry.Transformation;
-        rotate(angle: number, x: number, y: number): kendo.dataviz.geometry.Transformation;
-        scale(scaleX: number, scaleY: number): kendo.dataviz.geometry.Transformation;
-        translate(x: number, y: number): kendo.dataviz.geometry.Transformation;
-    }
-
-    interface TransformationOptions {
-        name?: string;
-    }
-    interface TransformationEvent {
-        sender: Transformation;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-}
 declare module kendo.dataviz.drawing {
     class Arc extends kendo.dataviz.drawing.Element {
         constructor(options?: ArcOptions);
@@ -1913,6 +1718,204 @@ declare module kendo.dataviz.drawing {
 
 
 }
+declare module kendo.dataviz.geometry {
+    class Arc extends Observable {
+        options: ArcOptions;
+        bbox(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Rect;
+        getAnticlockwise(): boolean;
+        getCenter(): kendo.dataviz.geometry.Point;
+        getEndAngle(): number;
+        getRadiusX(): number;
+        getRadiusY(): number;
+        getStartAngle(): number;
+        pointAt(angle: number): kendo.dataviz.geometry.Point;
+        setAnticlockwise(value: boolean): kendo.dataviz.geometry.Arc;
+        setCenter(value: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Arc;
+        setEndAngle(value: number): kendo.dataviz.geometry.Arc;
+        setRadiusX(value: number): kendo.dataviz.geometry.Arc;
+        setRadiusY(value: number): kendo.dataviz.geometry.Arc;
+        setStartAngle(value: number): kendo.dataviz.geometry.Arc;
+        anticlockwise: boolean;
+        center: kendo.dataviz.geometry.Point;
+        endAngle: number;
+        radiusX: number;
+        radiusY: number;
+        startAngle: number;
+    }
+
+    interface ArcOptions {
+        name?: string;
+    }
+    interface ArcEvent {
+        sender: Arc;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+
+    class Circle extends Observable {
+        options: CircleOptions;
+        bbox(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Rect;
+        clone(): kendo.dataviz.geometry.Circle;
+        equals(other: kendo.dataviz.geometry.Circle): boolean;
+        getCenter(): kendo.dataviz.geometry.Point;
+        getRadius(): number;
+        pointAt(angle: number): kendo.dataviz.geometry.Point;
+        setCenter(value: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Point;
+        setCenter(value: any): kendo.dataviz.geometry.Point;
+        setRadius(value: number): kendo.dataviz.geometry.Circle;
+        center: kendo.dataviz.geometry.Point;
+        radius: number;
+    }
+
+    interface CircleOptions {
+        name?: string;
+    }
+    interface CircleEvent {
+        sender: Circle;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+
+    class Matrix extends Observable {
+        options: MatrixOptions;
+        clone(): kendo.dataviz.geometry.Matrix;
+        equals(other: kendo.dataviz.geometry.Matrix): boolean;
+        round(digits: number): kendo.dataviz.geometry.Matrix;
+        multiplyCopy(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Matrix;
+        toArray(digits: number): any;
+        toString(digits: number, separator: string): string;
+        a: number;
+        b: number;
+        c: number;
+        d: number;
+        e: number;
+        f: number;
+    }
+
+    interface MatrixOptions {
+        name?: string;
+    }
+    interface MatrixEvent {
+        sender: Matrix;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+
+    class Point extends Observable {
+        options: PointOptions;
+        clone(): kendo.dataviz.geometry.Point;
+        distanceTo(point: kendo.dataviz.geometry.Point): number;
+        equals(other: kendo.dataviz.geometry.Point): boolean;
+        getX(): number;
+        getY(): number;
+        move(x: number, y: number): kendo.dataviz.geometry.Point;
+        rotate(angle: number, center: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Point;
+        rotate(angle: number, center: any): kendo.dataviz.geometry.Point;
+        round(digits: number): kendo.dataviz.geometry.Point;
+        scale(scaleX: number, scaleY: number): kendo.dataviz.geometry.Point;
+        scaleCopy(scaleX: number, scaleY: number): kendo.dataviz.geometry.Point;
+        setX(value: number): kendo.dataviz.geometry.Point;
+        setY(value: number): kendo.dataviz.geometry.Point;
+        toArray(digits: number): any;
+        toString(digits: number, separator: string): string;
+        transform(tansformation: kendo.dataviz.geometry.Transformation): kendo.dataviz.geometry.Point;
+        transformCopy(tansformation: kendo.dataviz.geometry.Transformation): kendo.dataviz.geometry.Point;
+        translate(dx: number, dy: number): kendo.dataviz.geometry.Point;
+        translateWith(vector: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Point;
+        translateWith(vector: any): kendo.dataviz.geometry.Point;
+        x: number;
+        y: number;
+    }
+
+    interface PointOptions {
+        name?: string;
+    }
+    interface PointEvent {
+        sender: Point;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+
+    class Rect extends Observable {
+        options: RectOptions;
+        bbox(matrix: kendo.dataviz.geometry.Matrix): kendo.dataviz.geometry.Rect;
+        bottomLeft(): kendo.dataviz.geometry.Point;
+        bottomRight(): kendo.dataviz.geometry.Point;
+        center(): kendo.dataviz.geometry.Point;
+        clone(): kendo.dataviz.geometry.Rect;
+        equals(other: kendo.dataviz.geometry.Rect): boolean;
+        getOrigin(): kendo.dataviz.geometry.Point;
+        getSize(): kendo.dataviz.geometry.Size;
+        height(): number;
+        setOrigin(value: kendo.dataviz.geometry.Point): kendo.dataviz.geometry.Rect;
+        setOrigin(value: any): kendo.dataviz.geometry.Rect;
+        setSize(value: kendo.dataviz.geometry.Size): kendo.dataviz.geometry.Rect;
+        setSize(value: any): kendo.dataviz.geometry.Rect;
+        topLeft(): kendo.dataviz.geometry.Point;
+        topRight(): kendo.dataviz.geometry.Point;
+        width(): number;
+        origin: kendo.dataviz.geometry.Point;
+        size: kendo.dataviz.geometry.Size;
+    }
+
+    interface RectOptions {
+        name?: string;
+    }
+    interface RectEvent {
+        sender: Rect;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+
+    class Size extends Observable {
+        options: SizeOptions;
+        clone(): kendo.dataviz.geometry.Size;
+        equals(other: kendo.dataviz.geometry.Size): boolean;
+        getWidth(): number;
+        getHeight(): number;
+        setWidth(value: number): kendo.dataviz.geometry.Size;
+        setHeight(value: number): kendo.dataviz.geometry.Size;
+        width: number;
+        height: number;
+    }
+
+    interface SizeOptions {
+        name?: string;
+    }
+    interface SizeEvent {
+        sender: Size;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+
+    class Transformation extends Observable {
+        options: TransformationOptions;
+        clone(): kendo.dataviz.geometry.Transformation;
+        equals(other: kendo.dataviz.geometry.Transformation): boolean;
+        matrix(): kendo.dataviz.geometry.Matrix;
+        multiply(transformation: kendo.dataviz.geometry.Transformation): kendo.dataviz.geometry.Transformation;
+        rotate(angle: number, x: number, y: number): kendo.dataviz.geometry.Transformation;
+        scale(scaleX: number, scaleY: number): kendo.dataviz.geometry.Transformation;
+        translate(x: number, y: number): kendo.dataviz.geometry.Transformation;
+    }
+
+    interface TransformationOptions {
+        name?: string;
+    }
+    interface TransformationEvent {
+        sender: Transformation;
+        isDefaultPrevented(): boolean;
+        preventDefault: Function;
+    }
+
+
+}
 declare module kendo.ui {
     class AutoComplete extends kendo.ui.Widget {
         static fn: AutoComplete;
@@ -1924,7 +1927,7 @@ declare module kendo.ui {
         options: AutoCompleteOptions;
         dataSource: kendo.data.DataSource;
         close(): void;
-        dataItem(index: number): any;
+        dataItem(index?: number): any;
         destroy(): void;
         enable(enable: boolean): void;
         focus(): void;
@@ -2917,7 +2920,6 @@ declare module kendo.ui {
         dialogInsert?: string;
         dialogCancel?: string;
         createTable?: string;
-        createTableHint?: string;
         addColumnLeft?: string;
         addColumnRight?: string;
         addRowAbove?: string;
@@ -2928,7 +2930,6 @@ declare module kendo.ui {
 
     interface EditorSerialization {
         entities?: boolean;
-        scripts?: boolean;
     }
 
     interface EditorToolItem {
@@ -4617,8 +4618,6 @@ declare module kendo.ui {
 
     interface SchedulerMessages {
         allDay?: string;
-        ariaEventLabel?: string;
-        ariaSlotLabel?: string;
         cancel?: string;
         date?: string;
         deleteWindowTitle?: string;
@@ -12150,31 +12149,6 @@ declare module kendo {
     }
     interface ColorEvent {
         sender: Color;
-        isDefaultPrevented(): boolean;
-        preventDefault: Function;
-    }
-
-
-}
-declare module kendo.dataviz.map {
-    class Location extends kendo.Class {
-        options: LocationOptions;
-        clone(): kendo.dataviz.map.Location;
-        destination(destination: kendo.dataviz.map.Location): number;
-        distanceTo(distance: number, bearing: number): kendo.dataviz.map.Location;
-        equals(location: kendo.dataviz.map.Location): boolean;
-        round(digits: number): kendo.dataviz.map.Location;
-        toArray(): any;
-        wrap(): kendo.dataviz.map.Location;
-        lat: number;
-        lng: number;
-    }
-
-    interface LocationOptions {
-        name?: string;
-    }
-    interface LocationEvent {
-        sender: Location;
         isDefaultPrevented(): boolean;
         preventDefault: Function;
     }

@@ -1313,6 +1313,9 @@ declare module kendo.dataviz.ui {
 }
 
 declare module kendo.dataviz.map {
+    class Location {
+    }
+
     class Marker {
     }
 
@@ -8087,27 +8090,37 @@ declare module kendo {
 
 
 }
-declare module kendo.dataviz.map {
-    class Location extends kendo.Class {
-        options: LocationOptions;
-        clone(): kendo.dataviz.map.Location;
-        destination(destination: kendo.dataviz.map.Location): number;
-        distanceTo(distance: number, bearing: number): kendo.dataviz.map.Location;
-        equals(location: kendo.dataviz.map.Location): boolean;
-        round(digits: number): kendo.dataviz.map.Location;
-        toArray(): any;
-        wrap(): kendo.dataviz.map.Location;
-        lat: number;
-        lng: number;
+declare module kendo.ui {
+    class Validator extends kendo.ui.Widget {
+        static fn: Validator;
+        static extend(proto: Object): Validator;
+
+        element: JQuery;
+        wrapper: JQuery;
+        constructor(element: Element, options?: ValidatorOptions);
+        options: ValidatorOptions;
+        errors(): any;
+        hideMessages(): void;
+        validate(): boolean;
+        validateInput(input: Element): boolean;
+        validateInput(input: JQuery): boolean;
     }
 
-    interface LocationOptions {
+    interface ValidatorOptions {
         name?: string;
+        errorTemplate?: string;
+        messages?: any;
+        rules?: any;
+        validateOnBlur?: boolean;
+        validate?(e: ValidatorValidateEvent): void;
     }
-    interface LocationEvent {
-        sender: Location;
+    interface ValidatorEvent {
+        sender: Validator;
         isDefaultPrevented(): boolean;
         preventDefault: Function;
+    }
+
+    interface ValidatorValidateEvent extends ValidatorEvent {
     }
 
 
@@ -8178,5 +8191,9 @@ interface JQuery {
     kendoTreeMap(): JQuery;
     kendoTreeMap(options: kendo.dataviz.ui.TreeMapOptions): JQuery;
     data(key: "kendoTreeMap") : kendo.dataviz.ui.TreeMap;
+
+    kendoValidator(): JQuery;
+    kendoValidator(options: kendo.ui.ValidatorOptions): JQuery;
+    data(key: "kendoValidator") : kendo.ui.Validator;
 
 }

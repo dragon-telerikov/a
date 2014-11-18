@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -1756,27 +1756,21 @@
                 slotX, slotY, from, to;
 
             if (plotBands.length) {
-                var range = this.range();
                 result = map(plotBands, function(item) {
                     from = valueOrDefault(item.from, MIN_VALUE);
                     to = valueOrDefault(item.to, MAX_VALUE);
-                    var element = [];
 
-                    if (isInRange(from, range) || isInRange(to, range)) {
-                        if (vertical) {
-                            slotX = plotArea.axisX.lineBox();
-                            slotY = axis.getSlot(item.from, item.to, true);
-                        } else {
-                            slotX = axis.getSlot(item.from, item.to, true);
-                            slotY = plotArea.axisY.lineBox();
-                        }
-
-                        element = view.createRect(
-                                Box2D(slotX.x1, slotY.y1, slotX.x2, slotY.y2),
-                                { fill: item.color, fillOpacity: item.opacity, zIndex: -1 });
+                    if (vertical) {
+                        slotX = plotArea.axisX.lineBox();
+                        slotY = axis.getSlot(item.from, item.to, true);
+                    } else {
+                        slotX = axis.getSlot(item.from, item.to, true);
+                        slotY = plotArea.axisY.lineBox();
                     }
 
-                    return element;
+                    return view.createRect(
+                            Box2D(slotX.x1, slotY.y1, slotX.x2, slotY.y2),
+                            { fill: item.color, fillOpacity: item.opacity, zIndex: -1 });
                 });
             }
 
@@ -4697,11 +4691,6 @@
             return element.textContent || element.innerText;
         }
     }
-
-    function isInRange(value, range) {
-        return value >= range.min && value <= range.max;
-    }
-
     decodeEntities._element = document.createElement("span");
 
     // Exports ================================================================

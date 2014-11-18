@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -11,42 +11,6 @@
 })(function(){
 
 
-
-/* Filter cell operator messages */
-
-if (kendo.ui.FilterCell) {
-kendo.ui.FilterCell.prototype.options.operators =
-$.extend(true, kendo.ui.FilterCell.prototype.options.operators,{
-  "date": {
-    "eq": "É igual a",
-    "gt": "É posterior a",
-    "gte": "É posterior ou igual a",
-    "lt": "É anterior a",
-    "lte": "É anterior ou igual a",
-    "neq": "Não é igual a"
-  },
-  "enum": {
-    "eq": "É igual a",
-    "neq": "Não é igual a"
-  },
-  "number": {
-    "eq": "É igual a",
-    "gt": "É maior que",
-    "gte": "É maior que ou igual a",
-    "lt": "É menor que",
-    "lte": "É menor que ou igual a",
-    "neq": "Não é igual a"
-  },
-  "string": {
-    "contains": "Contém",
-    "doesnotcontain": "Não contém",
-    "endswith": "Termina com",
-    "eq": "É igual a",
-    "neq": "Não é igual a",
-    "startswith": "Começa com"
-  }
-});
-}
 
 /* Filter menu operator messages */
 
@@ -215,19 +179,6 @@ $.extend(true, kendo.ui.Editor.prototype.options.messages,{
 });
 }
 
-/* FilterCell messages */
-
-if (kendo.ui.FilterCell) {
-kendo.ui.FilterCell.prototype.options.messages =
-$.extend(true, kendo.ui.FilterCell.prototype.options.messages,{
-  "clear": "Limpar",
-  "filter": "Filtrar",
-  "isFalse": "É falso",
-  "isTrue": "É verdade",
-  "operator": "Operador"
-});
-}
-
 /* FilterMenu messages */
 
 if (kendo.ui.FilterMenu) {
@@ -371,7 +322,6 @@ $.extend(true, kendo.ui.Upload.prototype.options.localization,{
   "uploadSelectedFiles1": "Enviar arquivos"
 });
 }
-
 
 return window.kendo;
 

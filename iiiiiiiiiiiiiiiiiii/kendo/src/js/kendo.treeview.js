@@ -1,5 +1,5 @@
 /*
-* Kendo UI v2014.2.1008 (http://www.telerik.com/kendo-ui)
+* Kendo UI v2014.2.903 (http://www.telerik.com/kendo-ui)
 * Copyright 2014 Telerik AD. All rights reserved.
 *
 * Kendo UI commercial licenses may be obtained at
@@ -221,7 +221,9 @@
 
             that._tabindex();
 
-            that.root.attr("role", "tree");
+            if (!that.wrapper.filter("[role=tree]").length) {
+                that.wrapper.attr("role", "tree");
+            }
 
             that._dataSource(inferred);
 
@@ -428,13 +430,7 @@
                     return result;
                 },
                 groupAttributes: function(group) {
-                    var attributes = "";
-
-                    if (!group.firstLevel) {
-                        attributes = "role='group'";
-                    }
-
-                    return attributes + (group.expanded !== true ? " style='display:none'" : "");
+                    return group.expanded !== true ? " style='display:none'" : "";
                 },
                 groupCssClass: function(group) {
                     var cssClass = "k-group";
@@ -452,7 +448,7 @@
                     "</div>"
                 ),
                 group: templateNoWith(
-                    "<ul class='#= data.r.groupCssClass(data.group) #'#= data.r.groupAttributes(data.group) #>" +
+                    "<ul class='#= data.r.groupCssClass(data.group) #'#= data.r.groupAttributes(data.group) # role='group'>" +
                         "#= data.renderItems(data) #" +
                     "</ul>"
                 ),
@@ -493,9 +489,9 @@
                 ),
                 item: templateNoWith(
                     "# var item = data.item, r = data.r; #" +
-                    "<li role='treeitem' class='#= r.wrapperCssClass(data.group, item) #' " +
-                        kendo.attr("uid") + "='#= item.uid #' " +
-                        "aria-selected='#= item.selected ? \"true\" : \"false \" #' " +
+                    "<li role='treeitem' class='#= r.wrapperCssClass(data.group, item) #'" +
+                        " " + kendo.attr("uid") + "='#= item.uid #'" +
+                        "#=item.selected ? \"aria-selected='true'\" : ''#" +
                         "#=item.enabled === false ? \"aria-disabled='true'\" : ''#" +
                     ">" +
                         "#= r.itemElement(data) #" +
@@ -523,10 +519,6 @@
             this._dataSource();
 
             this.dataSource.fetch();
-
-            if (options.checkboxes && options.checkboxes.checkChildren) {
-                this.updateIndeterminate();
-            }
         },
 
         _bindDataSource: function() {
@@ -1336,7 +1328,7 @@
                             }
 
                             isCollapsed = true;
-                            node.attr(ARIASELECTED, false)
+                            node.removeAttr(ARIASELECTED)
                                 .attr(ARIADISABLED, true);
                         }
 
@@ -1393,9 +1385,20 @@
                 this._progress(parentNode, false);
             }
 
-            if (checkChildren && action != "remove" && node && node.checked) {
+            if (checkChildren && action != "remove") {
+                var bubble = false;
+
                 for (i = 0; i < items.length; i++) {
-                    items[i].checked = true;
+                    if ("checked" in items[i]) {
+                        bubble = true;
+                        break;
+                    }
+                }
+
+                if (!bubble && node && node.checked) {
+                    for (i = 0; i < items.length; i++) {
+                        items[i].checked = true;
+                    }
                 }
             }
 
@@ -1436,21 +1439,26 @@
 
                         this.root
                             .attr("class", group.attr("class"))
+                            .attr("role", group.attr("role"))
                             .html(group.html());
                     } else {
                         this.root = this.wrapper.html(groupHtml).children("ul");
                     }
 
-                    this.root.attr("role", "tree");
-
                     this._angularItems("compile");
                 }
             }
 
+            // expand any expanded items
             for (i = 0; i < items.length; i++) {
                 if (!loadOnDemand || items[i].expanded) {
                     items[i].load();
                 }
+            }
+
+            // update indeterminate state when appending / moving items
+            if (checkChildren) {
+                this.updateIndeterminate();
             }
 
             this.trigger(DATABOUND, {
