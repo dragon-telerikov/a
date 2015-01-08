@@ -1,0 +1,37 @@
+{
+  "ProjectName": "B-A-T_Hybrid_Blank.TS Project",
+  "ProjectGuid": "bb52255f-7cb6-43ec-9ce0-075d79315e2c",
+  "projectVersion": 1,
+  "AppIdentifier": "com.telerik.BATHybridBlankTSProject",
+  "DisplayName": "B-A-T_Hybrid_Blank.TS Project",
+  "Author": "",
+  "Description": "",
+  "BundleVersion": "1.0",
+  "AndroidVersionCode": "1",
+  "iOSDeviceFamily": [
+    "1",
+    "2"
+  ],
+  "iOSBackgroundMode": [],
+  "ProjectTypeGuids": "{070BCB52-5A75-4F8C-A973-144AF0EAFCC9}",
+  "FrameworkVersion": "3.5.0",
+  "AndroidPermissions": [],
+  "DeviceOrientations": [
+    "Portrait",
+    "Landscape"
+  ],
+  "AndroidHardwareAcceleration": "false",
+  "iOSStatusBarStyle": "Default",
+  "Framework": "Cordova",
+  "WP8TileTitle": "",
+  "WP8Publisher": "",
+  "WP8Capabilities": [],
+  "WP8Requirements": [],
+  "WP8PublisherID": "{83564962-1f90-4c09-b1bd-2947dfdc9df6}",
+  "WP8ProductID": "{ddf698ff-5214-4078-a9c0-d7039fe3a2e2}",
+  "WP8SupportedResolutions": [
+    "ID_RESOLUTION_WVGA",
+    "ID_RESOLUTION_WXGA",
+    "ID_RESOLUTION_HD720P"
+  ]
+}
